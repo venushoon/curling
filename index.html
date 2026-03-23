@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 컬링 학습 게임</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1400px;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* 게임 영역 */
+        .game-section {
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+        }
+
+        .game-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        /* 캔버스 */
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(to bottom, #f0f4ff 0%, #e8ecff 100%);
+            border-radius: 15px;
+            border: 3px solid #667eea;
+            overflow: hidden;
+            box-shadow: inset 0 4px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 제어판 */
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            border: 2px solid #e0e7ff;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-weight: 700;
+            font-size: 13px;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"],
+        textarea {
+            padding: 10px 12px;
+            border: 2px solid #e0e7ff;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+            font-size: 12px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f4ff;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #e8ecff;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+            font-size: 11px;
+        }
+
+        .btn-danger:hover {
+            background: #ff5252;
+        }
+
+        /* 관리자 섹션 */
+        .admin-section {
+            background: #fafbff;
+            padding: 25px;
+            border-left: 4px solid #667eea;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .admin-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .layer-item {
+            padding: 12px;
+            background: white;
+            border: 2px solid #e0e7ff;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .layer-header {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .layer-content {
+            color: #666;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .layer-image {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+
+        /* 팝업 */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .popup {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .popup-emoji {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .popup-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .popup-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        .popup-text {
+            font-size: 16px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .popup-close {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* 반응형 */
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-section {
+                max-height: 300px;
+                border-left: none;
+                border-top: 4px solid #667eea;
+            }
+
+            .canvas-wrapper {
+                height: 400px;
+            }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .reset-all {
+            margin-top: 15px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        function CurlingGame() {
+            const canvasRef = useRef(null);
+            const [gameState, setGameState] = useState({
+                stoneX: 100,
+                stoneY: 250,
+                velocityX: 0,
+                velocityY: 0,
+                isDragging: false,
+                dragStartX: 0,
+                dragStartY: 0
+            });
+
+            const [layers, setLayers] = useState([
+                { id: 0, x: 700, y: 250, radius: 30, title: '레이어 1', text: '안녕하세요!', image: '', emoji: '🎯' },
+                { id: 1, x: 700, y: 250, radius: 80, title: '레이어 2', text: '더 나아가보세요!', image: '', emoji: '⭐' },
+                { id: 2, x: 700, y: 250, radius: 130, title: '레이어 3', text: '거의 다왔어요!', image: '', emoji: '🚀' },
+                { id: 3, x: 700, y: 250, radius: 180, title: '레이어 4', text: '한 번 더 도전하세요!', image: '', emoji: '💪' },
+                { id: 4, x: 700, y: 250, radius: 230, title: '레이어 5', text: '시작 지점에 가까워요', image: '', emoji: '🌟' },
+                { id: 5, x: 700, y: 250, radius: 280, title: '레이어 6', text: '출발지점!', image: '', emoji: '🏁' }
+            ]);
+
+            const [editingLayer, setEditingLayer] = useState(0);
+            const [showPopup, setShowPopup] = useState(false);
+            const [popupData, setPopupData] = useState(null);
+            const [stats, setStats] = useState({ hits: 0, misses: 0, distance: 0 });
+
+            // 캔버스 그리기
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                const width = canvas.clientWidth;
+                const height = canvas.clientHeight;
+
+                canvas.width = width;
+                canvas.height = height;
+
+                // 배경
+                const gradient = ctx.createLinearGradient(0, 0, width, height);
+                gradient.addColorStop(0, '#f0f4ff');
+                gradient.addColorStop(1, '#e8ecff');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+
+                // 중앙선
+                ctx.strokeStyle = 'rgba(102, 126, 234, 0.2)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([10, 10]);
+                ctx.beginPath();
+                ctx.moveTo(0, height / 2);
+                ctx.lineTo(width, height / 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // 레이어 그리기
+                layers.forEach((layer, index) => {
+                    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#a29bfe'];
+                    ctx.fillStyle = colors[index] + '30';
+                    ctx.strokeStyle = colors[index];
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(layer.x, layer.y, layer.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // 텍스트
+                    ctx.fillStyle = colors[index];
+                    ctx.font = 'bold 12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(layer.title, layer.x, layer.y - layer.radius + 20);
+                });
+
+                // 컬링 스톤 그리기
+                const stoneGradient = ctx.createRadialGradient(gameState.stoneX - 5, gameState.stoneY - 5, 0, gameState.stoneX, gameState.stoneY, 15);
+                stoneGradient.addColorStop(0, '#ff4757');
+                stoneGradient.addColorStop(1, '#c41e3a');
+                ctx.fillStyle = stoneGradient;
+                ctx.beginPath();
+                ctx.arc(gameState.stoneX, gameState.stoneY, 15, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 스톤 가장자리
+                ctx.strokeStyle = 'rgba(196, 30, 58, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // 드래그 라인 표시
+                if (gameState.isDragging) {
+                    ctx.strokeStyle = 'rgba(102, 126, 234, 0.5)';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.beginPath();
+                    ctx.moveTo(gameState.stoneX, gameState.stoneY);
+                    ctx.lineTo(gameState.dragStartX, gameState.dragStartY);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+            }, [gameState, layers]);
+
+            // 마우스/터치 이벤트
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+
+                const getCoords = (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    return {
+                        x: (clientX - rect.left) * (canvas.width / rect.width),
+                        y: (clientY - rect.top) * (canvas.height / rect.height)
+                    };
+                };
+
+                const handleStart = (e) => {
+                    const coords = getCoords(e);
+                    const dx = coords.x - gameState.stoneX;
+                    const dy = coords.y - gameState.stoneY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 30) {
+                        setGameState(prev => ({
+                            ...prev,
+                            isDragging: true,
+                            dragStartX: coords.x,
+                            dragStartY: coords.y,
+                            velocityX: 0,
+                            velocityY: 0
+                        }));
+                    }
+                };
+
+                const handleMove = (e) => {
+                    if (!gameState.isDragging) return;
+                    const coords = getCoords(e);
+                    setGameState(prev => ({
+                        ...prev,
+                        dragStartX: coords.x,
+                        dragStartY: coords.y
+                    }));
+                };
+
+                const handleEnd = () => {
+                    if (!gameState.isDragging) return;
+
+                    const dx = gameState.dragStartX - gameState.stoneX;
+                    const dy = gameState.dragStartY - gameState.stoneY;
+                    const power = Math.sqrt(dx * dx + dy * dy);
+
+                    if (power > 5) {
+                        const angle = Math.atan2(dy, dx);
+                        const velocity = Math.min(power * 0.5, 20);
+
+                        setGameState(prev => ({
+                            ...prev,
+                            isDragging: false,
+                            velocityX: Math.cos(angle) * velocity,
+                            velocityY: Math.sin(angle) * velocity
+                        }));
+                    } else {
+                        setGameState(prev => ({ ...prev, isDragging: false }));
+                    }
+                };
+
+                canvas.addEventListener('mousedown', handleStart);
+                canvas.addEventListener('mousemove', handleMove);
+                canvas.addEventListener('mouseup', handleEnd);
+                canvas.addEventListener('touchstart', handleStart);
+                canvas.addEventListener('touchmove', handleMove);
+                canvas.addEventListener('touchend', handleEnd);
+
+                return () => {
+                    canvas.removeEventListener('mousedown', handleStart);
+                    canvas.removeEventListener('mousemove', handleMove);
+                    canvas.removeEventListener('mouseup', handleEnd);
+                    canvas.removeEventListener('touchstart', handleStart);
+                    canvas.removeEventListener('touchmove', handleMove);
+                    canvas.removeEventListener('touchend', handleEnd);
+                };
+            }, [gameState]);
+
+            // 물리 시뮬레이션
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setGameState(prev => {
+                        if (prev.isDragging) return prev;
+
+                        let newX = prev.stoneX + prev.velocityX;
+                        let newY = prev.stoneY + prev.velocityY;
+                        let newVelX = prev.velocityX * 0.98;
+                        let newVelY = prev.velocityY * 0.98;
+
+                        const canvas = canvasRef.current;
+                        if (canvas) {
+                            if (newX - 15 < 0) newX = 15;
+                            if (newX + 15 > canvas.width) newX = canvas.width - 15;
+                            if (newY - 15 < 0) newY = 15;
+                            if (newY + 15 > canvas.height) newY = canvas.height - 15;
+                        }
+
+                        // 레이어 충돌 감지
+                        layers.forEach(layer => {
+                            const dx = newX - layer.x;
+                            const dy = newY - layer.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+
+                            if (distance < layer.radius && distance > layer.radius - 30) {
+                                if (Math.sqrt(prev.velocityX ** 2 + prev.velocityY ** 2) > 0.5) {
+                                    setShowPopup(true);
+                                    setPopupData(layer);
+                                    setStats(s => ({
+                                        ...s,
+                                        hits: s.hits + 1,
+                                        distance: Math.round(Math.sqrt((newX - 100) ** 2 + (newY - 250) ** 2))
+                                    }));
+                                    newVelX = 0;
+                                    newVelY = 0;
+                                }
+                            }
+                        });
+
+                        // 멈춤 조건
+                        if (Math.abs(newVelX) < 0.1 && Math.abs(newVelY) < 0.1) {
+                            newVelX = 0;
+                            newVelY = 0;
+                        }
+
+                        return {
+                            ...prev,
+                            stoneX: newX,
+                            stoneY: newY,
+                            velocityX: newVelX,
+                            velocityY: newVelY
+                        };
+                    });
+                }, 30);
+
+                return () => clearInterval(interval);
+            }, [layers]);
+
+            const handleLayerUpdate = (field, value) => {
+                setLayers(prev => {
+                    const newLayers = [...prev];
+                    newLayers[editingLayer] = { ...newLayers[editingLayer], [field]: value };
+                    return newLayers;
+                });
+            };
+
+            const handleImageUpload = (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        handleLayerUpdate('image', event.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const resetGame = () => {
+                setGameState({
+                    stoneX: 100,
+                    stoneY: 250,
+                    velocityX: 0,
+                    velocityY: 0,
+                    isDragging: false,
+                    dragStartX: 0,
+                    dragStartY: 0
+                });
+                setStats({ hits: 0, misses: 0, distance: 0 });
+            };
+
+            return (
+                <div className="app-container">
+                    <div className="game-section">
+                        <h1 className="game-title">🎯 컬링 학습 게임</h1>
+
+                        <div className="canvas-wrapper">
+                            <canvas ref={canvasRef}></canvas>
+                        </div>
+
+                        <div className="control-panel">
+                            <p style={{ textAlign: 'center', color: '#667eea', fontSize: '14px', fontWeight: '700' }}>
+                                🎮 컬링 스톤을 드래그해서 던지세요! 멀리 드래그할수록 강하게 던져집니다.
+                            </p>
+
+                            <div className="stats">
+                                <div className="stat-box">
+                                    <div className="stat-value">{stats.hits}</div>
+                                    <div>명중</div>
+                                </div>
+                                <div className="stat-box">
+                                    <div className="stat-value">{stats.distance}</div>
+                                    <div>거리</div>
+                                </div>
+                                <div className="stat-box">
+                                    <div className="stat-value">{Math.round(gameState.velocityX ** 2 + gameState.velocityY ** 2)}</div>
+                                    <div>속력</div>
+                                </div>
+                            </div>
+
+                            <button className="btn-secondary reset-all" onClick={resetGame}>↺ 처음부터</button>
+                        </div>
+                    </div>
+
+                    <div className="admin-section">
+                        <div className="admin-title">⚙️ 레이어 설정</div>
+
+                        <div className="control-group" style={{ marginBottom: '20px' }}>
+                            <label className="control-label">편집할 레이어 선택</label>
+                            <select
+                                style={{
+                                    padding: '10px 12px',
+                                    border: '2px solid #e0e7ff',
+                                    borderRadius: '8px',
+                                    fontSize: '13px',
+                                    fontFamily: 'inherit'
+                                }}
+                                value={editingLayer}
+                                onChange={(e) => setEditingLayer(Number(e.target.value))}
+                            >
+                                {layers.map((_, i) => (
+                                    <option key={i} value={i}>레이어 {i + 1}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="control-group">
+                            <label className="control-label">이모지</label>
+                            <input
+                                type="text"
+                                value={layers[editingLayer].emoji}
+                                onChange={(e) => handleLayerUpdate('emoji', e.target.value)}
+                                maxLength="2"
+                                style={{ textAlign: 'center', fontSize: '18px' }}
+                            />
+                        </div>
+
+                        <div className="control-group">
+                            <label className="control-label">제목</label>
+                            <input
+                                type="text"
+                                value={layers[editingLayer].title}
+                                onChange={(e) => handleLayerUpdate('title', e.target.value)}
+                                placeholder="레이어 제목"
+                            />
+                        </div>
+
+                        <div className="control-group">
+                            <label className="control-label">설명 텍스트</label>
+                            <textarea
+                                value={layers[editingLayer].text}
+                                onChange={(e) => handleLayerUpdate('text', e.target.value)}
+                                placeholder="학습 내용을 입력하세요"
+                            />
+                        </div>
+
+                        <div className="control-group">
+                            <label className="control-label">이미지 업로드</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                            />
+                            {layers[editingLayer].image && (
+                                <img src={layers[editingLayer].image} alt="preview" className="layer-image" />
+                            )}
+                        </div>
+
+                        <div className="control-group" style={{ marginTop: '20px', paddingTop: '20px', borderTop: '2px solid #e0e7ff' }}>
+                            <div className="admin-title" style={{ marginBottom: '15px' }}>📋 미리보기</div>
+                            <div className="layer-item">
+                                <div className="layer-header">
+                                    <span>{layers[editingLayer].emoji}</span>
+                                    {layers[editingLayer].title}
+                                </div>
+                                <div className="layer-content">
+                                    {layers[editingLayer].text}
+                                </div>
+                                {layers[editingLayer].image && (
+                                    <img src={layers[editingLayer].image} alt="layer" className="layer-image" style={{ height: '80px' }} />
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {showPopup && popupData && (
+                        <div className="popup-overlay" onClick={() => setShowPopup(false)}>
+                            <div className="popup">
+                                <div className="popup-emoji">{popupData.emoji}</div>
+                                <h2 className="popup-title">{popupData.title}</h2>
+                                {popupData.image && (
+                                    <img src={popupData.image} alt="result" className="popup-image" />
+                                )}
+                                <p className="popup-text">{popupData.text}</p>
+                                <button className="popup-close" onClick={() => setShowPopup(false)}>
+                                    🎮 계속하기
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<CurlingGame />, document.getElementById('root'));
+    </script>
+</body>
+</html>
