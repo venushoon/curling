@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 프로 컬링 게임 - 레이아웃 개선판</title>
+    <title>🎯 프로 컬링 게임 - 최적화 레이아웃</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -12,7 +12,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
-            /* 1, 2번 배경과 유사한 보라색-그레이 그라데이션 (외부 배경) */
             background: linear-gradient(135deg, #e0e0e0 0%, #a0a0a0 100%);
             height: 100vh;
             display: flex;
@@ -57,19 +56,16 @@
         .form-label { font-size: 11px; font-weight: bold; color: #667eea; }
         input[type="text"], textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
 
-        /* 게임 화면 (3번째 사진의 레이아웃 반영) */
+        /* 게임 화면 */
         .game-wrapper {
             position: relative;
-            /* 가로 화면에서는 세로로 길게 배치 (3번 사진 비율) */
             height: 95vh;
-            width: auto; /* 너비는 비율에 맞게 캔버스에서 조절 */
-            background: white; border-radius: 25px; /* 경기장 프레임 */
+            width: auto;
+            background: white; border-radius: 25px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
             display: flex; flex-direction: column;
-            animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        /* 세로 화면(스마트폰)에서는 화면 전체 사용 */
         @media (max-width: 768px) {
             .game-wrapper { height: 100vh; width: 100vw; border-radius: 0; }
         }
@@ -78,11 +74,9 @@
         
         .side-buttons { position: absolute; top: 15px; right: 15px; z-index: 10; display: flex; gap: 8px; }
         .btn-game { padding: 8px 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; font-size: 12px; }
-        /* 1번 사진의 상단 버튼 색상 반영 */
-        .btn-setup { background-color: #4ecdc4; } /* 청록색 */
-        .btn-home { background-color: #667eea; } /* 보라색 */
+        .btn-setup { background-color: #4ecdc4; }
+        .btn-home { background-color: #667eea; }
 
-        /* 팝업 */
         .popup-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.8); display: flex; align-items: center;
@@ -109,7 +103,6 @@
     <script type="text/babel">
         const { useState, useRef, useEffect } = React;
 
-        // 사운드 유틸리티
         const SoundManager = {
             ctx: null,
             init() { if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
@@ -218,29 +211,25 @@
             const wrapperRef = useRef(null);
             const [popup, setPopup] = useState(null);
             
-            // 로직 상태 관리
             const state = useRef({
                 stone: { x: 0, y: 0, vx: 0, vy: 0, r: 20 },
                 drag: { active: false, startX: 0, startY: 0, currX: 0, currY: 0 },
                 holes: [],
                 isMoving: false,
                 canvasWidth: 0,
-                canvasHeight: 0
+                canvasHeight: 0,
+                padding: 20 // padding을 state에 포함시켜 어디서든 참조 가능하게 수정
             });
 
-            // 캔버스 사이즈 조절 및 과녁 위치 설정 (반응형의 핵심)
             const resize = () => {
                 const canvas = canvasRef.current;
                 const wrapper = wrapperRef.current;
                 if (!canvas || !wrapper) return;
 
                 const parentHeight = wrapper.clientHeight;
-                
-                // 3번 사진의 세로로 긴 경기장 비율 설정 (가로 : 세로 = 1 : 2.5 정도)
                 let canvasHeight = parentHeight;
                 let canvasWidth = canvasHeight / 2.5;
 
-                // 스마트폰 가로 너비가 너무 좁을 때 대응
                 if (canvasWidth > window.innerWidth * 0.9) {
                     canvasWidth = window.innerWidth * 0.9;
                     canvasHeight = canvasWidth * 2.5;
@@ -248,38 +237,33 @@
 
                 canvas.width = canvasWidth;
                 canvas.height = canvasHeight;
-                wrapper.style.width = `${canvasWidth}px`; // 프레임 너비 조절
+                wrapper.style.width = `${canvasWidth}px`;
 
                 state.current.canvasWidth = canvasWidth;
                 state.current.canvasHeight = canvasHeight;
 
-                // 스톤 초기 위치 (START 라인 중앙)
                 state.current.stone.x = canvasWidth / 2;
-                state.current.stone.y = canvasHeight - 120; // 3번 사진의 START 위치
+                state.current.stone.y = canvasHeight - 120;
 
-                // 3번 사진의 과녁 배치 반영 (두 줄 촘촘하게)
                 const newHoles = [];
-                const padding = 20;
-                const startY = padding + 60; // 상단 여백
-                const colSpacing = (canvasWidth - padding * 2) / 2; // 가로 간격
-                const rowSpacing = 80; // 세로 간격
+                const padding = state.current.padding;
+                const startY = padding + 60;
+                const colSpacing = (canvasWidth - padding * 2) / 2;
+                const rowSpacing = 80;
 
                 for(let i=0; i<6; i++) {
                     const row = Math.floor(i / 2);
                     const col = i % 2;
                     newHoles.push({
-                        // 가로: 비율에 맞춰 배치 (3번 사진 중앙 정렬)
                         x: padding + colSpacing / 2 + col * colSpacing,
-                        // 세로: 촘촘하게 배치
                         y: startY + row * rowSpacing,
-                        r: 30, // 과녁 크기 (비율 조절)
+                        r: 30,
                         index: i
                     });
                 }
                 state.current.holes = newHoles;
             };
 
-            // 스톤 리셋 로직 (코드 유지)
             const resetStone = (toStartLine = true) => {
                 const s = state.current.stone;
                 s.vx = 0; s.vy = 0;
@@ -295,7 +279,7 @@
                 let animationId;
 
                 window.addEventListener('resize', resize);
-                resize(); // 초기 사이즈 설정
+                resize();
 
                 const loop = () => {
                     update();
@@ -303,7 +287,6 @@
                     animationId = requestAnimationFrame(loop);
                 };
 
-                // 물리 엔진 및 로직 (100% 유지)
                 const update = () => {
                     const s = state.current.stone;
                     const cW = state.current.canvasWidth;
@@ -312,20 +295,14 @@
                     if (state.current.isMoving) {
                         s.x += s.vx;
                         s.y += s.vy;
-                        
-                        // 마찰력 (3번 사진의 아이스 느낌을 위해 마찰력을 약간 낮춤)
                         s.vx *= 0.985;
                         s.vy *= 0.985;
 
-                        // 벽 충돌 (코드 유지)
                         if(s.x < s.r || s.x > cW - s.r) { s.vx *= -0.7; s.x = s.x < s.r ? s.r : cW - s.r; SoundManager.playCollision(); }
                         if(s.y < s.r || s.y > cH - s.r) { s.vy *= -0.7; s.y = s.y < s.r ? s.r : cH - s.r; SoundManager.playCollision(); }
 
-                        // 정지 확인
                         if(Math.hypot(s.vx, s.vy) < 0.2) {
                             state.current.isMoving = false;
-                            
-                            // 과녁 명중 확인 (코드 유지)
                             const hit = state.current.holes.find(h => {
                                 const dist = Math.hypot(s.x - h.x, s.y - h.y);
                                 return dist < h.r + s.r;
@@ -334,48 +311,41 @@
                             if(hit) {
                                 SoundManager.playHole();
                                 setPopup(layers[hit.index]);
-                                resetStone(false); // 그 위치에 정지
+                                resetStone(false);
                             } else {
-                                // 못 넣었으면 원위치 (로직 유지)
                                 resetStone(true);
                             }
                         }
                     }
                 };
 
-                // 렌더링 (3번째 사진 디자인 반영)
                 const draw = () => {
                     const cH = state.current.canvasHeight;
                     const cW = state.current.canvasWidth;
+                    const padding = state.current.padding; // state에서 안전하게 참조
                     ctx.clearRect(0, 0, cW, cH);
                     
-                    // 1. 경기장 배경 (아이스: 3번 사진의 연한 하늘색)
                     const grad = ctx.createLinearGradient(0,0,0, cH);
                     grad.addColorStop(0, '#f0faff'); grad.addColorStop(1, '#d0eaff');
                     ctx.fillStyle = grad;
                     ctx.fillRect(0,0, cW, cH);
 
-                    // 2. 컬링 전용 구역 표시 (3번 사진 반영)
                     ctx.save();
                     ctx.strokeStyle = '#c0d0e0';
                     ctx.lineWidth = 1.5;
-                    ctx.setLineDash([5, 10]); // 점선
+                    ctx.setLineDash([5, 10]);
 
-                    // 세로 중앙선
                     ctx.beginPath();
                     ctx.moveTo(cW/2, 20); ctx.lineTo(cW/2, cH-20); ctx.stroke();
                     
-                    // 가로 START 구역 라인
                     const startLineY = cH - 150;
                     ctx.beginPath();
                     ctx.moveTo(10, startLineY); ctx.lineTo(cW-10, startLineY); ctx.stroke();
                     
-                    // START 구역 연한 회색 배경
                     ctx.setLineDash([]);
                     ctx.fillStyle = 'rgba(200, 210, 220, 0.4)';
                     ctx.fillRect(10, startLineY, cW-20, 80);
 
-                    // "START" 텍스트 (빨간색)
                     ctx.fillStyle = '#ff6b6b';
                     ctx.font = 'bold 16px Sans-serif';
                     ctx.textAlign = 'left';
@@ -383,66 +353,62 @@
                     ctx.fillText('START', padding + 15, startLineY + 25);
                     ctx.restore();
 
-
-                    // 3. 과녁 그리기 (디자인 유지: 1,2번 사진의 숫자+텍스트)
                     state.current.holes.forEach((h, i) => {
                         ctx.beginPath();
                         ctx.arc(h.x, h.y, h.r, 0, Math.PI*2);
-                        ctx.fillStyle = '#1a1a1a'; // 1번 사진의 검은색 원
+                        ctx.fillStyle = '#1a1a1a';
                         ctx.fill();
-                        ctx.strokeStyle = '#ff4757'; // 1번 사진의 빨간 테두리
+                        ctx.strokeStyle = '#ff4757';
                         ctx.lineWidth = 4;
                         ctx.stroke();
                         
-                        // 기존 디자인 유지 (숫자)
                         ctx.fillStyle = 'white';
                         ctx.font = 'bold 24px Arial';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         ctx.fillText(i+1, h.x, h.y);
                         
-                        // 기존 디자인 유지 (목표 텍스트)
-                        ctx.fillStyle = '#444'; // 1번 사진의 목표 텍스트 색상
+                        ctx.fillStyle = '#444';
                         ctx.font = '14px Sans-serif';
                         ctx.fillText(layers[i].title, h.x, h.y + h.r + 20);
                     });
 
-                    // 4. 드래그 가이드 라인 (코드 유지)
                     if(state.current.drag.active) {
                         const d = state.current.drag;
                         const s = state.current.stone;
                         ctx.beginPath();
                         ctx.moveTo(s.x, s.y);
                         ctx.lineTo(d.currX, d.currY);
-                        ctx.strokeStyle = 'rgba(255, 100, 100, 0.5)'; // 빨간색 가이드
+                        ctx.strokeStyle = 'rgba(255, 100, 100, 0.5)';
                         ctx.lineWidth = 2;
                         ctx.setLineDash([5, 5]);
                         ctx.stroke();
                         ctx.setLineDash([]);
                     }
 
-                    // 5. 스톤 그리기 (디자인 유지: 1,2번 사진의 빨간 그라데이션)
                     const s = state.current.stone;
                     ctx.beginPath();
                     ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
                     const sGrad = ctx.createRadialGradient(s.x-5, s.y-5, 0, s.x, s.y, s.r);
-                    sGrad.addColorStop(0, '#ff9c5b'); sGrad.addColorStop(1, '#d93c3c'); // 1,2번 스톤 색상
+                    sGrad.addColorStop(0, '#ff9c5b'); sGrad.addColorStop(1, '#d93c3c');
                     ctx.fillStyle = sGrad;
                     ctx.fill();
-                    ctx.strokeStyle = '#c41e3a'; // 빨간 테두리
+                    ctx.strokeStyle = '#c41e3a';
                     ctx.lineWidth = 3;
                     ctx.stroke();
                 };
 
-                // 마우스/터치 이벤트 (3번 사진 구역 설정 반영)
                 const onDown = (e) => {
                     if(state.current.isMoving || popup) return;
-                    const x = e.clientX || e.touches[0].clientX;
-                    const y = e.clientY || e.touches[0].clientY;
-                    const s = state.current.stone;
+                    const rect = canvas.getBoundingClientRect();
+                    const clientX = e.clientX || e.touches[0].clientX;
+                    const clientY = e.clientY || e.touches[0].clientY;
                     
-                    // 스톤 자체를 터치했는지 확인
-                    if(Math.hypot(x - s.x, y - s.y) < s.r * 2) {
+                    const x = (clientX - rect.left) * (canvas.width / rect.width);
+                    const y = (clientY - rect.top) * (canvas.height / rect.height);
+                    
+                    const s = state.current.stone;
+                    if(Math.hypot(x - s.x, y - s.y) < s.r * 2.5) {
                         state.current.drag.active = true;
                         state.current.drag.startX = x;
                         state.current.drag.startY = y;
@@ -454,15 +420,13 @@
 
                 const onMove = (e) => {
                     if(!state.current.drag.active || popup) return;
-                    const canvas = canvasRef.current;
                     const rect = canvas.getBoundingClientRect();
                     const scaleX = canvas.width / rect.width;
                     const scaleY = canvas.height / rect.height;
 
-                    const clientX = e.clientX || e.touches?.[0].clientX;
-                    const clientY = e.clientY || e.touches?.[0].clientY;
+                    const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+                    const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
 
-                    // 화면 터치 좌표를 캔버스 좌표로 변환
                     state.current.drag.currX = (clientX - rect.left) * scaleX;
                     state.current.drag.currY = (clientY - rect.top) * scaleY;
                 };
@@ -472,32 +436,17 @@
                     const s = state.current.stone;
                     const d = state.current.drag;
                     
-                    const cH = state.current.canvasHeight;
-                    const cHRect = canvasRef.current.getBoundingClientRect().height;
-
-                    const clientY = e.clientY || e.changedTouches?.[0].clientY;
-                    const startLineYRect = canvasRef.current.getBoundingClientRect().bottom - (cHRect * 150/cH);
-
-                    // 구역 체크: START 라인 위(경기장 방향)로 드래그했을 때만 발사
-                    if(clientY < startLineYRect) {
-                        const dx = d.startX - d.currX;
-                        const dy = d.startY - d.currY;
-                        
-                        // 힘 조절 및 발사
-                        const powerLimit = cH / 12; // 비율에 따른 힘 제한
-                        s.vx = dx * 0.15;
-                        s.vy = dy * 0.15;
-                        
-                        // 힘 최댓값 제한
-                        if(s.vx > powerLimit) s.vx = powerLimit;
-                        if(s.vy > powerLimit) s.vy = powerLimit;
-
-                        if(Math.hypot(s.vx, s.vy) > 2) { // 너무 적은 힘은 무시
-                            state.current.isMoving = true;
-                            SoundManager.play(600, 0.2);
-                        }
+                    const dx = d.startX - d.currX;
+                    const dy = d.startY - d.currY;
+                    
+                    const powerLimit = state.current.canvasHeight / 12;
+                    s.vx = dx * 0.15;
+                    s.vy = dy * 0.15;
+                    
+                    if(Math.hypot(s.vx, s.vy) > 1.5) {
+                        state.current.isMoving = true;
+                        SoundManager.play(600, 0.2);
                     } else {
-                        // START 구역 아래로 당기거나 옆으로 당기면 리셋
                         resetStone(true);
                     }
                     state.current.drag.active = false;
@@ -506,11 +455,11 @@
                 canvas.addEventListener('mousedown', onDown);
                 window.addEventListener('mousemove', onMove);
                 window.addEventListener('mouseup', onUp);
-                canvas.addEventListener('touchstart', onDown);
-                window.addEventListener('touchmove', onMove, { passive: false }); // 스크롤 방지
+                canvas.addEventListener('touchstart', onDown, { passive: false });
+                window.addEventListener('touchmove', onMove, { passive: false });
                 window.addEventListener('touchend', onUp);
 
-                loop(); // 애니메이션 루프 시작
+                loop();
 
                 return () => {
                     cancelAnimationFrame(animationId);
@@ -518,6 +467,9 @@
                     canvas.removeEventListener('mousedown', onDown);
                     window.removeEventListener('mousemove', onMove);
                     window.removeEventListener('mouseup', onUp);
+                    canvas.removeEventListener('touchstart', onDown);
+                    window.removeEventListener('touchmove', onMove);
+                    window.removeEventListener('touchend', onUp);
                 };
             }, [layers]);
 
