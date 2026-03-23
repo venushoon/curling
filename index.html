@@ -17,7 +17,7 @@
             display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
 
-        /* 홈 화면 */
+        /* 홈 화면 디자인 복구 */
         .home-container {
             width: 90%; max-width: 600px;
             background: white; border-radius: 30px;
@@ -35,9 +35,11 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white; padding: 40px 10px; border-radius: 20px;
             cursor: pointer; transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
         }
+        .mode-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(102, 126, 234, 0.5); }
 
-        /* 설정 페이지 */
+        /* 설정 페이지 디자인 복구 */
         .setup-container {
             width: 95vw; max-width: 1000px; max-height: 90vh;
             background: white; border-radius: 25px; padding: 30px 20px;
@@ -48,25 +50,27 @@
             margin-bottom: 20px; border-bottom: 3px solid #e0e7ff; padding-bottom: 15px;
             gap: 10px; flex-wrap: wrap;
         }
-        .setup-header h2 { font-size: clamp(20px, 5vw, 28px); white-space: nowrap; }
+        .setup-header h2 { font-size: clamp(20px, 5vw, 28px); font-weight: 900; color: #333; }
+        
         .tournament-input-group { background: #f0f4ff; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 2px dashed #667eea; }
         .layers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
-        .layer-card { background: #f8f9ff; border: 1px solid #e0e7ff; border-radius: 12px; padding: 12px; position: relative; }
-        .form-label { font-size: 11px; font-weight: bold; color: #667eea; display: block; margin-bottom: 5px; }
-        input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        .layer-card { background: #f8f9ff; border: 1px solid #e0e7ff; border-radius: 15px; padding: 15px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .form-label { font-size: 11px; font-weight: bold; color: #667eea; display: block; margin-bottom: 5px; text-transform: uppercase; }
+        input[type="text"], textarea { width: 100%; padding: 12px; border: 2px solid #e0e7ff; border-radius: 10px; font-family: inherit; transition: all 0.2s; }
+        input[type="text"]:focus { outline: none; border-color: #667eea; background: #fff; }
         
-        /* 이미지 미리보기 및 삭제 버튼 디자인 */
-        .preview-container { position: relative; width: 100%; height: 80px; margin-top: 5px; }
-        .img-preview { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; }
+        /* 이미지 미리보기 및 삭제 버튼 (요청 기능) */
+        .preview-container { position: relative; width: 100%; height: 100px; margin-top: 10px; }
+        .img-preview { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; border: 2px solid #e0e7ff; }
         .btn-delete-img {
-            position: absolute; top: -5px; right: -5px;
-            width: 24px; height: 24px; background: #ff4757; color: white;
+            position: absolute; top: -8px; right: -8px;
+            width: 28px; height: 28px; background: #ff4757; color: white;
             border: none; border-radius: 50%; cursor: pointer;
-            font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 5;
+            font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 8px rgba(255, 71, 87, 0.4); z-index: 5;
         }
 
-        /* 게임 화면 프레임 */
+        /* 게임 화면 프레임 복구 */
         .game-wrapper {
             position: relative; height: 98vh; width: auto; background: #f0faff; 
             border-radius: 40px; box-shadow: 0 0 50px rgba(0,0,0,0.8);
@@ -75,30 +79,38 @@
         @media (max-width: 768px) { .game-wrapper { height: 100vh; width: 100vw; border-radius: 0; border: none; } }
         canvas { flex: 1; touch-action: none; cursor: crosshair; }
 
-        .tournament-banner { position: absolute; top: 20px; width: 100%; text-align: center; z-index: 5; pointer-events: none; }
+        .tournament-banner { position: absolute; top: 25px; width: 100%; text-align: center; z-index: 5; pointer-events: none; }
         .tournament-name {
-            display: inline-block; padding: 8px 30px; background: rgba(255, 255, 255, 0.9);
+            display: inline-block; padding: 10px 35px; background: rgba(255, 255, 255, 0.95);
             border: 3px solid #667eea; border-radius: 50px; color: #4a148c; font-weight: 900; 
-            font-size: clamp(14px, 4vw, 20px); box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            font-size: clamp(14px, 4vw, 22px); box-shadow: 0 6px 20px rgba(0,0,0,0.2);
         }
 
-        .bottom-ui-area { position: absolute; bottom: 15px; left: 0; right: 0; display: flex; justify(content: center; gap: 20px; z-index: 10; pointer-events: none; padding: 0 15px; }
+        /* 하단 아이콘 버튼 디자인 복구 */
+        .bottom-ui-area { position: absolute; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 20px; z-index: 10; pointer-events: none; }
         .btn-icon-only {
-            width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; color: white;
-            pointer-events: auto; box-shadow: 0 6px 15px rgba(0,0,0,0.4); transition: transform 0.2s;
-            display: flex; align-items: center; justify-content: center; font-size: 22px;
+            width: 55px; height: 55px; border-radius: 20px; border: none; cursor: pointer; color: white;
+            pointer-events: auto; box-shadow: 0 8px 15px rgba(0,0,0,0.3); transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
         }
-        .btn-icon-only:hover { transform: scale(1.1) translateY(-3px); }
-        .btn-setup-icon { background: #4ecdc4; }
-        .btn-home-icon { background: #667eea; }
-        .btn-game-text { padding: 10px 18px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; color: white; font-size: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+        .btn-icon-only:hover { transform: scale(1.1) translateY(-5px); box-shadow: 0 12px 20px rgba(0,0,0,0.4); }
+        .btn-setup-icon { background: linear-gradient(135deg, #4ecdc4 0%, #45b7d1 100%); }
+        .btn-home-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 
-        /* 팝업 디자인 */
+        /* 설정창 텍스트 버튼 디자인 복구 */
+        .btn-game-text {
+            padding: 14px 28px; border-radius: 15px; border: none;
+            font-weight: 900; cursor: pointer; color: white; font-size: 16px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: all 0.2s;
+        }
+        .btn-game-text:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+
+        /* 팝업 디자인 복구 */
         .popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .popup-content { background: white; border-radius: 30px; padding: 30px; max-width: 450px; width: 90%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-        .popup-emoji { font-size: 60px; margin-bottom: 10px; }
-        .popup-image { width: 100%; height: 180px; object-fit: cover; border-radius: 15px; margin: 10px 0; border: 1px solid #eee; }
-        .popup-btn { width: 100%; padding: 15px; background: #667eea; color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .popup-content { background: white; border-radius: 35px; padding: 40px; max-width: 480px; width: 90%; text-align: center; box-shadow: 0 30px 70px rgba(0,0,0,0.6); }
+        .popup-emoji { font-size: 80px; margin-bottom: 15px; }
+        .popup-image { width: 100%; height: 220px; object-fit: cover; border-radius: 20px; margin: 15px 0; border: 3px solid #f0f4ff; }
+        .popup-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 15px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4); }
     </style>
 </head>
 <body>
@@ -159,10 +171,10 @@
             return (
                 <div className="home-container">
                     <h1 className="home-title">🎯 프로 컬링 게임</h1>
-                    <p style={{color:'#666', marginBottom:'20px'}}>교실에서 즐기는 실감나는 컬링 대회</p>
+                    <p style={{color:'#666', marginBottom:'25px', fontSize:'18px'}}>실감나는 물리 엔진 컬링 대회</p>
                     <div className="mode-grid">
-                        <div className="mode-card" onClick={onStart}><h2>시작하기</h2><p style={{fontSize:'13px', marginTop:'5px'}}>대회명 및 목표 설정</p></div>
-                        <div className="mode-card" style={{opacity: 0.6}}><h2>팀 대결</h2><p style={{fontSize:'13px', marginTop:'5px'}}>준비 중</p></div>
+                        <div className="mode-card" onClick={onStart}><h2 style={{fontSize:'24px'}}>시작하기</h2><p style={{fontSize:'14px', marginTop:'8px', opacity:0.9}}>대회명 및 목표 설정</p></div>
+                        <div className="mode-card" style={{opacity: 0.7, background: '#bdc3c7'}}><h2 style={{fontSize:'24px'}}>팀 대결</h2><p style={{fontSize:'14px', marginTop:'8px'}}>준비 중</p></div>
                     </div>
                 </div>
             );
@@ -179,17 +191,17 @@
                         </div>
                     </div>
                     <div className="tournament-input-group">
-                        <label className="form-label" style={{fontSize:'14px'}}>🏆 컬링 대회 명칭 입력</label>
-                        <input type="text" value={title} onChange={e => setTitle(e.target.value)} style={{fontSize:'18px', fontWeight:'bold', border:'2px solid #667eea'}} />
+                        <label className="form-label" style={{fontSize:'14px'}}>🏆 컬링 대회 명칭</label>
+                        <input type="text" value={title} onChange={e => setTitle(e.target.value)} style={{fontSize:'20px', fontWeight:'bold', border:'2px solid #667eea'}} />
                     </div>
                     <div className="layers-grid">
                         {layers.map((l, i) => (
                             <div key={i} className="layer-card">
-                                <strong>과녁 #{i+1}</strong>
-                                <div style={{marginTop:'8px'}}><label className="form-label">목표 이름</label><input type="text" value={l.title} onChange={e => onUpdate(i, 'title', e.target.value)} /></div>
-                                <div style={{marginTop:'5px'}}><label className="form-label">명중 시 메시지</label><textarea value={l.text} onChange={e => onUpdate(i, 'text', e.target.value)} /></div>
-                                <div style={{marginTop:'5px'}}>
-                                    <label className="form-label">이미지 추가</label>
+                                <strong style={{color:'#667eea', fontSize:'18px'}}>과녁 #{i+1}</strong>
+                                <div style={{marginTop:'12px'}}><label className="form-label">목표 이름</label><input type="text" value={l.title} onChange={e => onUpdate(i, 'title', e.target.value)} /></div>
+                                <div style={{marginTop:'10px'}}><label className="form-label">명중 메시지</label><textarea value={l.text} onChange={e => onUpdate(i, 'text', e.target.value)} rows="2" /></div>
+                                <div style={{marginTop:'10px'}}>
+                                    <label className="form-label">이미지 업로드</label>
                                     <input type="file" accept="image/*" onChange={e => {
                                         const file = e.target.files[0];
                                         if(file) {
@@ -201,8 +213,7 @@
                                     {l.image && (
                                         <div className="preview-container">
                                             <img src={l.image} className="img-preview" />
-                                            {/* 이미지 삭제 X 버튼 추가 */}
-                                            <button className="btn-delete-img" title="이미지 삭제" onClick={() => onUpdate(i, 'image', '')}>✕</button>
+                                            <button className="btn-delete-img" onClick={() => onUpdate(i, 'image', '')}>✕</button>
                                         </div>
                                     )}
                                 </div>
@@ -231,9 +242,7 @@
                         const img = new Image();
                         img.src = l.image;
                         imagesRef.current[i] = img;
-                    } else {
-                        imagesRef.current[i] = null;
-                    }
+                    } else { imagesRef.current[i] = null; }
                 });
             }, [layers]);
 
@@ -249,10 +258,10 @@
                 state.current.canvasWidth = w; state.current.canvasHeight = h;
                 state.current.stone.x = w / 2; state.current.stone.y = h - 110;
                 const newHoles = [];
-                const padding = 25; const startY = 120; const colW = (w - padding * 2) / 2; const rowH = 120;
+                const padding = 25; const startY = 125; const colW = (w - padding * 2) / 2; const rowH = 125;
                 for(let i=0; i<6; i++) {
                     const row = Math.floor(i / 2); const col = i % 2;
-                    newHoles.push({ x: padding + colW / 2 + col * colW, y: startY + row * rowH, r: 34, index: i });
+                    newHoles.push({ x: padding + colW / 2 + col * colW, y: startY + row * rowH, r: 36, index: i });
                 }
                 state.current.holes = newHoles;
             };
@@ -295,34 +304,16 @@
                     ctx.fillStyle = '#1e88e5'; ctx.font = '900 14px Sans-serif'; ctx.textAlign = 'center'; ctx.fillText('S T A R T  Z O N E', cW/2, startZoneY + 20); ctx.restore();
                     
                     state.current.holes.forEach((h, i) => {
-                        ctx.beginPath();
-                        ctx.arc(h.x, h.y, h.r, 0, Math.PI*2);
-                        ctx.fillStyle = '#212121';
-                        ctx.fill();
-                        ctx.strokeStyle = '#ff1744';
-                        ctx.lineWidth = 5;
-                        ctx.stroke();
-
+                        ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, Math.PI*2); ctx.fillStyle = '#212121'; ctx.fill();
+                        ctx.strokeStyle = '#ff1744'; ctx.lineWidth = 5; ctx.stroke();
                         const img = imagesRef.current[i];
                         if (img && img.complete) {
-                            ctx.save();
-                            ctx.beginPath();
-                            ctx.arc(h.x, h.y, h.r - 2, 0, Math.PI * 2);
-                            ctx.clip();
-                            ctx.drawImage(img, h.x - h.r, h.y - h.r, h.r * 2, h.r * 2);
-                            ctx.restore();
+                            ctx.save(); ctx.beginPath(); ctx.arc(h.x, h.y, h.r - 2, 0, Math.PI * 2); ctx.clip();
+                            ctx.drawImage(img, h.x - h.r, h.y - h.r, h.r * 2, h.r * 2); ctx.restore();
                         } else {
-                            ctx.fillStyle = 'white';
-                            ctx.font = 'bold 26px Arial';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'middle';
-                            ctx.fillText(i+1, h.x, h.y);
+                            ctx.fillStyle = 'white'; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(i+1, h.x, h.y);
                         }
-                        
-                        ctx.fillStyle = '#333';
-                        ctx.font = '900 16px Sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.fillText(layers[i].title, h.x, h.y + h.r + 22);
+                        ctx.fillStyle = '#333'; ctx.font = '900 16px Sans-serif'; ctx.textAlign = 'center'; ctx.fillText(layers[i].title, h.x, h.y + h.r + 22);
                     });
 
                     if(state.current.drag.active) {
@@ -330,13 +321,11 @@
                         ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(d.currX, d.currY);
                         ctx.strokeStyle = 'rgba(255, 23, 68, 0.4)'; ctx.lineWidth = 3; ctx.stroke();
                     }
-
                     const s = state.current.stone; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
                     const sG = ctx.createRadialGradient(s.x-6, s.y-6, 0, s.x, s.y, s.r);
                     sG.addColorStop(0, '#ff8a65'); sG.addColorStop(1, '#d84315'); ctx.fillStyle = sG; ctx.fill();
                     ctx.strokeStyle = '#bf360c'; ctx.lineWidth = 3; ctx.stroke();
                 };
-
                 const onDown = (e) => {
                     if(state.current.isMoving || popup) return;
                     const rect = canvas.getBoundingClientRect();
@@ -346,7 +335,6 @@
                         state.current.drag = { active: true, startX: x, startY: y, currX: x, currY: y }; SoundManager.play(800, 0.05);
                     }
                 };
-
                 const onMove = (e) => {
                     if(!state.current.drag.active) return;
                     const rect = canvas.getBoundingClientRect();
@@ -354,7 +342,6 @@
                     state.current.drag.currX = (cx - rect.left) * (canvas.width / rect.width);
                     state.current.drag.currY = (cy - rect.top) * (canvas.height / rect.height);
                 };
-
                 const onUp = () => {
                     if(!state.current.drag.active) return;
                     const d = state.current.drag; const s = state.current.stone;
@@ -362,7 +349,6 @@
                     if(Math.hypot(s.vx, s.vy) > 1.5) { state.current.isMoving = true; SoundManager.play(600, 0.2); } else resetStone(true);
                     state.current.drag.active = false;
                 };
-
                 canvas.addEventListener('mousedown', onDown); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
                 canvas.addEventListener('touchstart', onDown, { passive: false }); window.addEventListener('touchmove', onMove, { passive: false }); window.addEventListener('touchend', onUp);
                 loop();
@@ -381,9 +367,9 @@
                         <div className="popup-overlay">
                             <div className="popup-content">
                                 <div className="popup-emoji">{popup.emoji}</div>
-                                <h1 style={{color:'#667eea'}}>{popup.title}</h1>
+                                <h1 style={{color:'#667eea', fontSize:'32px'}}>{popup.title}</h1>
                                 {popup.image && <img src={popup.image} className="popup-image" />}
-                                <p style={{margin:'20px 0', fontSize:'18px', fontWeight:'bold'}}>{popup.text}</p>
+                                <p style={{margin:'20px 0', fontSize:'20px', fontWeight:'bold', color:'#333'}}>{popup.text}</p>
                                 <button className="popup-btn" onClick={() => { setPopup(null); resetStone(true); }}>다음 차례 계속하기</button>
                             </div>
                         </div>
