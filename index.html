@@ -1144,12 +1144,10 @@
                                     setShowPopup(true);
                                     setPopupData(layers[closestHole.index]);
                                     setIsMoving(false);
-                                    newX = initialStonePos.x;
-                                    newY = initialStonePos.y;
+                                    // 스톤 위치는 그대로 유지! 변경하지 않음
                                 } else if (isMoving) {
                                     setIsMoving(false);
-                                    newX = initialStonePos.x;
-                                    newY = initialStonePos.y;
+                                    // 과녁에 닿지 않으면 그냥 멈춤
                                 }
                             }
 
