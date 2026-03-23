@@ -382,13 +382,7 @@
         }
 
         .game-bottom-bar {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 15px;
-            border-top: 3px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 13px;
-            text-align: center;
-            font-weight: 600;
+            display: none;
         }
 
         /* ==================== 팝업 ==================== */
@@ -784,8 +778,8 @@
 
         function GameScreen({ gameMode, displayMode, layers, onReset, onHome }) {
             const canvasRef = useRef(null);
-            const [stonePos, setStonePos] = useState({ x: 450, y: 750 });
-            const [initialStonePos] = useState({ x: 450, y: 750 });
+            const [stonePos, setStonePos] = useState({ x: 450, y: 550 });
+            const [initialStonePos] = useState({ x: 450, y: 550 });
             const [stoneVel, setStoneVel] = useState({ x: 0, y: 0 });
             const [isDragging, setIsDragging] = useState(false);
             const [isDraggedPos, setIsDraggedPos] = useState({ x: 0, y: 0 });
@@ -796,16 +790,16 @@
 
             const STONE_RADIUS = 25;
             const HOLE_RADIUS = 50;
-            const START_LINE_Y = 750;
+            const START_LINE_Y = 550;
             const START_LINE_HEIGHT = 80;
 
             const HOLES = [
-                { x: 200, y: 100, index: 0 },   // 행1 열1
-                { x: 800, y: 100, index: 1 },   // 행1 열2
-                { x: 200, y: 290, index: 2 },   // 행2 열1
-                { x: 800, y: 290, index: 3 },   // 행2 열2
-                { x: 200, y: 480, index: 4 },   // 행3 열1
-                { x: 800, y: 480, index: 5 }    // 행3 열2
+                { x: 200, y: 110, index: 0 },   // 행1 열1
+                { x: 800, y: 110, index: 1 },   // 행1 열2
+                { x: 200, y: 230, index: 2 },   // 행2 열1
+                { x: 800, y: 230, index: 3 },   // 행2 열2
+                { x: 200, y: 350, index: 4 },   // 행3 열1
+                { x: 800, y: 350, index: 5 }    // 행3 열2
             ];
 
             // 캔버스 그리기
@@ -1014,7 +1008,7 @@
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
                     if (dist < STONE_RADIUS * 2.5) {
-                        setIsDraggedPos(coords);
+                        setIsDraggedPos(stonePos);  // 드래그 시작 위치 저장
                         setIsDragging(true);
                         setDragStart(coords);
                         SoundManager.playDrag();
@@ -1023,7 +1017,18 @@
 
                 const handleMove = (e) => {
                     if (isDragging) {
-                        setDragStart(getCoords(e));
+                        const coords = getCoords(e);
+                        // START 라인 범위 내에서만 이동 가능
+                        const dragMinX = 100;  // 좌측 범위
+                        const dragMaxX = 800;  // 우측 범위
+                        const dragMinY = 510;  // 상단 범위
+                        const dragMaxY = 590;  // 하단 범위
+                        
+                        const boundedX = Math.max(dragMinX, Math.min(dragMaxX, coords.x));
+                        const boundedY = Math.max(dragMinY, Math.min(dragMaxY, coords.y));
+                        
+                        setStonePos({ x: boundedX, y: boundedY });
+                        setDragStart(coords);
                     }
                 };
 
@@ -1042,6 +1047,9 @@
                             });
                             setIsMoving(true);
                             SoundManager.playDrag();
+                        } else {
+                            // 드래그 거리가 작으면 원위치로 복귀
+                            setStonePos(isDraggedPos);
                         }
                         setIsDragging(false);
                     }
@@ -1067,6 +1075,12 @@
             // 물리 시뮬레이션
             useEffect(() => {
                 const interval = setInterval(() => {
+                    // isDragging 중이면 물리 시뮬레이션 적용 안 함
+                    if (isDragging) {
+                        setStoneVel({ x: 0, y: 0 });
+                        return;
+                    }
+                    
                     setStoneVel(vel => {
                         setStonePos(prev => {
                             let newX = prev.x + vel.x;
@@ -1095,8 +1109,8 @@
                                 newVel.y = -newVel.y * 0.8;
                                 SoundManager.playCollision();
                             }
-                            if (newY + STONE_RADIUS > height - 70) {
-                                newY = height - 70 - STONE_RADIUS;
+                            if (newY + STONE_RADIUS > height - 50) {
+                                newY = height - 50 - STONE_RADIUS;
                                 newVel.y = -newVel.y * 0.8;
                                 SoundManager.playCollision();
                             }
@@ -1150,7 +1164,7 @@
                 }, 30);
 
                 return () => clearInterval(interval);
-            }, [isMoving, initialStonePos, layers]);
+            }, [isDragging, isMoving, initialStonePos, layers]);
 
             return (
                 <div className="game-wrapper">
