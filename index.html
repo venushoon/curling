@@ -289,7 +289,6 @@
         /* ==================== 게임 페이지 ==================== */
         .game-wrapper {
             width: 100%;
-            max-width: 900px;
             height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
@@ -801,12 +800,12 @@
             const START_LINE_HEIGHT = 80;
 
             const HOLES = [
-                { x: 250, y: 100, index: 0 },   // 행1 열1
-                { x: 650, y: 100, index: 1 },   // 행1 열2
-                { x: 250, y: 290, index: 2 },   // 행2 열1
-                { x: 650, y: 290, index: 3 },   // 행2 열2
-                { x: 250, y: 480, index: 4 },   // 행3 열1
-                { x: 650, y: 480, index: 5 }    // 행3 열2
+                { x: 200, y: 100, index: 0 },   // 행1 열1
+                { x: 800, y: 100, index: 1 },   // 행1 열2
+                { x: 200, y: 290, index: 2 },   // 행2 열1
+                { x: 800, y: 290, index: 3 },   // 행2 열2
+                { x: 200, y: 480, index: 4 },   // 행3 열1
+                { x: 800, y: 480, index: 5 }    // 행3 열2
             ];
 
             // 캔버스 그리기
@@ -819,6 +818,25 @@
                 const height = canvas.clientHeight;
                 canvas.width = width;
                 canvas.height = height;
+
+                // 동적 과녁 좌표 계산
+                const leftX = width * 0.25;
+                const rightX = width * 0.75;
+                
+                const dynamicHoles = [
+                    { x: leftX, y: 100, index: 0 },   // 1
+                    { x: rightX, y: 100, index: 1 },   // 2
+                    { x: leftX, y: 290, index: 2 },    // 3
+                    { x: rightX, y: 290, index: 3 },   // 4
+                    { x: leftX, y: 480, index: 4 },    // 5
+                    { x: rightX, y: 480, index: 5 }    // 6
+                ];
+                
+                // HOLES를 동적으로 계산된 값으로 업데이트
+                HOLES.forEach((hole, index) => {
+                    hole.x = dynamicHoles[index].x;
+                    hole.y = dynamicHoles[index].y;
+                });
 
                 // 아이스 배경
                 const bgGradient = ctx.createLinearGradient(0, 0, width, height);
