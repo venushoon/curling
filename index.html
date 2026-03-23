@@ -778,8 +778,8 @@
 
         function GameScreen({ gameMode, displayMode, layers, onReset, onHome }) {
             const canvasRef = useRef(null);
-            const [stonePos, setStonePos] = useState({ x: 450, y: 550 });
-            const [initialStonePos] = useState({ x: 450, y: 550 });
+            const [stonePos, setStonePos] = useState({ x: 450, y: 700 });
+            const [initialStonePos] = useState({ x: 450, y: 700 });
             const [stoneVel, setStoneVel] = useState({ x: 0, y: 0 });
             const [isDragging, setIsDragging] = useState(false);
             const [isDraggedPos, setIsDraggedPos] = useState({ x: 0, y: 0 });
@@ -790,16 +790,16 @@
 
             const STONE_RADIUS = 25;
             const HOLE_RADIUS = 50;
-            const START_LINE_Y = 550;
+            const START_LINE_Y = 700;
             const START_LINE_HEIGHT = 80;
 
             const HOLES = [
-                { x: 200, y: 110, index: 0 },   // 행1 열1
-                { x: 800, y: 110, index: 1 },   // 행1 열2
-                { x: 200, y: 230, index: 2 },   // 행2 열1
-                { x: 800, y: 230, index: 3 },   // 행2 열2
-                { x: 200, y: 350, index: 4 },   // 행3 열1
-                { x: 800, y: 350, index: 5 }    // 행3 열2
+                { x: 200, y: 70, index: 0 },    // 행1 열1
+                { x: 800, y: 70, index: 1 },    // 행1 열2
+                { x: 200, y: 170, index: 2 },   // 행2 열1
+                { x: 800, y: 170, index: 3 },   // 행2 열2
+                { x: 200, y: 270, index: 4 },   // 행3 열1
+                { x: 800, y: 270, index: 5 }    // 행3 열2
             ];
 
             // 캔버스 그리기
@@ -818,12 +818,12 @@
                 const rightX = width * 0.75;
                 
                 const dynamicHoles = [
-                    { x: leftX, y: 100, index: 0 },   // 1
-                    { x: rightX, y: 100, index: 1 },   // 2
-                    { x: leftX, y: 290, index: 2 },    // 3
-                    { x: rightX, y: 290, index: 3 },   // 4
-                    { x: leftX, y: 480, index: 4 },    // 5
-                    { x: rightX, y: 480, index: 5 }    // 6
+                    { x: leftX, y: 70, index: 0 },   // 1
+                    { x: rightX, y: 70, index: 1 },   // 2
+                    { x: leftX, y: 170, index: 2 },    // 3
+                    { x: rightX, y: 170, index: 3 },   // 4
+                    { x: leftX, y: 270, index: 4 },    // 5
+                    { x: rightX, y: 270, index: 5 }    // 6
                 ];
                 
                 // HOLES를 동적으로 계산된 값으로 업데이트
@@ -1021,8 +1021,8 @@
                         // START 라인 범위 내에서만 이동 가능
                         const dragMinX = 100;  // 좌측 범위
                         const dragMaxX = 800;  // 우측 범위
-                        const dragMinY = 510;  // 상단 범위
-                        const dragMaxY = 590;  // 하단 범위
+                        const dragMinY = 660;  // 상단 범위
+                        const dragMaxY = 740;  // 하단 범위
                         
                         const boundedX = Math.max(dragMinX, Math.min(dragMaxX, coords.x));
                         const boundedY = Math.max(dragMinY, Math.min(dragMaxY, coords.y));
@@ -1126,7 +1126,7 @@
                                 newVel = { x: 0, y: 0 };
 
                                 let closestHole = null;
-                                let minDistance = HOLE_RADIUS;
+                                let minDistance = HOLE_RADIUS * 1.5;  // 범위 확대
 
                                 HOLES.forEach((hole) => {
                                     const dx = newX - hole.x;
@@ -1182,12 +1182,6 @@
                     </div>
 
                     <div className="side-buttons">
-                        <button className="btn-small btn-restart" onClick={() => {
-                            setStonePos(initialStonePos);
-                            setStoneVel({ x: 0, y: 0 });
-                            setIsMoving(false);
-                            SoundManager.playDrag();
-                        }}>↺ 다시</button>
                         <button className="btn-small btn-setup" onClick={onReset}>⚙️ 설정</button>
                     </div>
 
