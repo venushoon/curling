@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 프로 컬링 게임 - 대회 모드 (최적화 레이아웃)</title>
+    <title>🎯 프로 컬링 게임 - 대회 모드</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -20,29 +20,35 @@
             overflow: hidden;
         }
 
-        /* 홈 화면 */
+        /* 홈 화면 - 수정된 부분 */
         .home-container {
             width: 90%; max-width: 600px;
             background: white; border-radius: 30px;
-            padding: 60px 40px; text-align: center;
+            padding: 60px 20px; text-align: center; /* 패딩 소폭 조정 */
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden; /* 영역 밖으로 나가는 것 방지 */
         }
         .home-title {
-            font-size: 48px; font-weight: 900; margin-bottom: 15px;
+            /* 폰트 크기를 약간 줄이고 유동적으로 설정 */
+            font-size: clamp(32px, 8vw, 48px); 
+            font-weight: 900; 
+            margin-bottom: 15px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            /* [PC 최적화] 넓은 화면에서 제목 줄바꿈 방지 */
-            white-space: nowrap; 
-        }
-        /* [PC 최적화] 모바일에서는 줄바꿈 허용 */
-        @media (max-width: 768px) {
-            .home-title { white-space: normal; }
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            
+            /* [중요] 삐져나가는 원인 수정 */
+            white-space: normal; /* 자동 줄바꿈 허용 */
+            word-break: keep-all; /* 단어 단위 줄바꿈으로 깔끔하게 */
+            line-height: 1.2;
+            display: block;
+            width: 100%;
         }
 
         .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; }
         .mode-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; padding: 40px 20px; border-radius: 20px;
+            color: white; padding: 40px 10px; border-radius: 20px;
             cursor: pointer; transition: all 0.3s;
         }
 
@@ -75,7 +81,6 @@
 
         canvas { flex: 1; touch-action: none; cursor: crosshair; }
 
-        /* 상단 대회명 배너 */
         .tournament-banner {
             position: absolute; top: 20px; width: 100%; text-align: center;
             z-index: 5; pointer-events: none;
@@ -84,26 +89,18 @@
             display: inline-block; padding: 8px 30px;
             background: rgba(255, 255, 255, 0.9);
             border: 3px solid #667eea; border-radius: 50px;
-            color: #4a148c; font-weight: 900; font-size: 20px;
+            color: #4a148c; font-weight: 900; font-size: clamp(14px, 4vw, 20px);
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
 
-        /* [모바일 최적화] 하단 버튼 영역 정렬 개선 */
         .bottom-ui-area {
             position: absolute; bottom: 15px; left: 0; right: 0;
             display: flex; justify-content: center; gap: 15px;
             z-index: 10; pointer-events: none; padding: 0 15px;
         }
         @media (max-width: 768px) {
-            .bottom-ui-area {
-                /* 모바일에서는 버튼 너비를 넓히고 확실하게 정렬 */
-                justify-content: space-around;
-            }
-            .bottom-ui-area .btn-game {
-                flex: 1;
-                max-width: 160px;
-                text-align: center;
-            }
+            .bottom-ui-area { justify-content: space-around; }
+            .bottom-ui-area .btn-game { flex: 1; max-width: 160px; text-align: center; padding: 12px 10px; font-size: 13px; }
         }
 
         .btn-game {
@@ -185,8 +182,8 @@
                     <h1 className="home-title">🎯 프로 컬링 게임</h1>
                     <p style={{color:'#666', marginBottom:'20px'}}>교실에서 즐기는 실감나는 컬링 대회</p>
                     <div className="mode-grid">
-                        <div className="mode-card" onClick={onStart}><h2>시작하기</h2><p>대회명 및 목표 설정</p></div>
-                        <div className="mode-card" style={{opacity: 0.6}}><h2>팀 대결</h2><p>준비 중</p></div>
+                        <div className="mode-card" onClick={onStart}><h2>시작하기</h2><p style={{fontSize:'13px', marginTop:'5px'}}>대회명 및 목표 설정</p></div>
+                        <div className="mode-card" style={{opacity: 0.6}}><h2>팀 대결</h2><p style={{fontSize:'13px', marginTop:'5px'}}>준비 중</p></div>
                     </div>
                 </div>
             );
