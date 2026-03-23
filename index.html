@@ -168,24 +168,17 @@
             box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
         }
 
-        .btn-reset {
-            background: white;
-            color: #667eea;
-            border: 3px solid #667eea;
-        }
-
-        .btn-reset:hover {
-            background: #f8f9ff;
-        }
-
         /* ==================== 게임 페이지 ==================== */
-        .game-container {
+        .game-wrapper {
             width: 100%;
             max-width: 500px;
             height: 100vh;
-            background: linear-gradient(to bottom, #2c3e50 0%, #34495e 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             flex-direction: column;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
@@ -193,16 +186,17 @@
             padding: 20px;
             text-align: center;
             color: white;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 18px;
-            border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
         }
 
         .canvas-container {
             flex: 1;
             position: relative;
-            background: linear-gradient(to bottom, #2c3e50 0%, #1a252f 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
         }
 
         canvas {
@@ -419,7 +413,7 @@
         };
 
         function CurlingGame() {
-            const [gameState, setGameState] = useState('setup'); // 'setup' or 'playing'
+            const [gameState, setGameState] = useState('setup');
             const [layers, setLayers] = useState(Array(6).fill(null).map((_, i) => ({
                 id: i,
                 emoji: '🎯',
@@ -523,23 +517,26 @@
 
         function GameScreen({ layers, onReset }) {
             const canvasRef = useRef(null);
-            const [stonePos, setStonePos] = useState({ x: 250, y: 50 });
+            const [stonePos, setStonePos] = useState({ x: 250, y: 550 });
+            const [initialStonePos] = useState({ x: 250, y: 550 });
             const [stoneVel, setStoneVel] = useState({ x: 0, y: 0 });
             const [isDragging, setIsDragging] = useState(false);
             const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
             const [showPopup, setShowPopup] = useState(false);
             const [popupData, setPopupData] = useState(null);
-            const [wallCollisions, setWallCollisions] = useState(0);
+            const [isMoving, setIsMoving] = useState(false);
 
-            const STONE_RADIUS = 12;
-            const HOLE_RADIUS = 35;
+            const STONE_RADIUS = 18;
+            const HOLE_RADIUS = 40;
+
+            // 2×3 그리드 레이어 위치
             const HOLES = [
-                { x: 250, y: 550 },
-                { x: 150, y: 500 },
-                { x: 350, y: 500 },
-                { x: 100, y: 400 },
-                { x: 250, y: 400 },
-                { x: 400, y: 400 }
+                { x: 100, y: 130, index: 0 },    // 좌측 상단
+                { x: 250, y: 130, index: 1 },    // 중앙 상단
+                { x: 400, y: 130, index: 2 },    // 우측 상단
+                { x: 100, y: 260, index: 3 },    // 좌측 중단
+                { x: 250, y: 260, index: 4 },    // 중앙 중단
+                { x: 400, y: 260, index: 5 }     // 우측 중단
             ];
 
             // 캔버스 그리기
@@ -553,60 +550,91 @@
                 canvas.width = width;
                 canvas.height = height;
 
-                // 배경
+                // 배경 - 아름다운 그라데이션
                 const bgGradient = ctx.createLinearGradient(0, 0, width, height);
-                bgGradient.addColorStop(0, '#2c3e50');
+                bgGradient.addColorStop(0, '#3a4a5c');
+                bgGradient.addColorStop(0.5, '#2c3e50');
                 bgGradient.addColorStop(1, '#1a252f');
                 ctx.fillStyle = bgGradient;
                 ctx.fillRect(0, 0, width, height);
 
+                // 데코레이션: 부드러운 원형 배경
+                const decorGradient = ctx.createRadialGradient(width / 2, 200, 0, width / 2, 200, 300);
+                decorGradient.addColorStop(0, 'rgba(102, 126, 234, 0.1)');
+                decorGradient.addColorStop(1, 'rgba(102, 126, 234, 0)');
+                ctx.fillStyle = decorGradient;
+                ctx.fillRect(0, 0, width, height);
+
                 // 컬링장 경계선
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(50, 20, width - 100, height - 40);
+                ctx.lineWidth = 3;
+                ctx.strokeRect(30, 40, width - 60, height - 200);
 
                 // 중심선
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-                ctx.setLineDash([5, 5]);
+                ctx.setLineDash([8, 8]);
                 ctx.beginPath();
-                ctx.moveTo(width / 2, 20);
-                ctx.lineTo(width / 2, height - 20);
+                ctx.moveTo(width / 2, 40);
+                ctx.lineTo(width / 2, height - 160);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // 좌우 경계선
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+                ctx.setLineDash([5, 10]);
+                ctx.beginPath();
+                ctx.moveTo(100, 40);
+                ctx.lineTo(100, height - 160);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(width - 100, 40);
+                ctx.lineTo(width - 100, height - 160);
                 ctx.stroke();
                 ctx.setLineDash([]);
 
                 // 구멍 그리기
-                HOLES.forEach((hole, idx) => {
+                HOLES.forEach((hole) => {
                     // 그림자
-                    const shadowGradient = ctx.createRadialGradient(hole.x, hole.y, 0, hole.x, hole.y, HOLE_RADIUS);
-                    shadowGradient.addColorStop(0, 'rgba(0, 0, 0, 0.3)');
+                    const shadowGradient = ctx.createRadialGradient(hole.x, hole.y, 0, hole.x, hole.y, HOLE_RADIUS + 10);
+                    shadowGradient.addColorStop(0, 'rgba(0, 0, 0, 0.5)');
                     shadowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
                     ctx.fillStyle = shadowGradient;
-                    ctx.fillRect(hole.x - HOLE_RADIUS - 5, hole.y - HOLE_RADIUS - 5, (HOLE_RADIUS + 5) * 2, (HOLE_RADIUS + 5) * 2);
+                    ctx.fillRect(hole.x - HOLE_RADIUS - 15, hole.y - HOLE_RADIUS - 15, (HOLE_RADIUS + 15) * 2, (HOLE_RADIUS + 15) * 2);
 
-                    // 구멍
-                    ctx.fillStyle = '#000';
+                    // 구멍 - 깊이감 있는 그라데이션
+                    const holeGradient = ctx.createRadialGradient(hole.x - 8, hole.y - 8, 5, hole.x, hole.y, HOLE_RADIUS);
+                    holeGradient.addColorStop(0, '#1a1a1a');
+                    holeGradient.addColorStop(0.7, '#000');
+                    holeGradient.addColorStop(1, '#333');
+                    ctx.fillStyle = holeGradient;
                     ctx.beginPath();
                     ctx.arc(hole.x, hole.y, HOLE_RADIUS, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // 구멍 테두리
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                    ctx.lineWidth = 2;
+                    // 구멍 테두리 - 금속 효과
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+
+                    // 내부 테두리
+                    ctx.strokeStyle = 'rgba(0, 0, 0, 0.6)';
+                    ctx.lineWidth = 1;
                     ctx.stroke();
 
                     // 번호
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-                    ctx.font = 'bold 12px Arial';
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.font = 'bold 18px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText(`${idx + 1}`, hole.x, hole.y);
+                    ctx.fillText(`${hole.index + 1}`, hole.x, hole.y);
                 });
 
-                // 컬링 돌 그리기
-                const stoneGradient = ctx.createRadialGradient(stonePos.x - 4, stonePos.y - 4, 2, stonePos.x, stonePos.y, STONE_RADIUS);
-                stoneGradient.addColorStop(0, '#ff8c42');
-                stoneGradient.addColorStop(0.5, '#ff6b35');
-                stoneGradient.addColorStop(1, '#c41e3a');
+                // 컬링 돌 그리기 - 더 크고 생생하게
+                const stoneGradient = ctx.createRadialGradient(stonePos.x - 5, stonePos.y - 5, 3, stonePos.x, stonePos.y, STONE_RADIUS);
+                stoneGradient.addColorStop(0, '#ff9c5b');
+                stoneGradient.addColorStop(0.4, '#ff7b42');
+                stoneGradient.addColorStop(0.7, '#ff5a4a');
+                stoneGradient.addColorStop(1, '#d93c3c');
 
                 ctx.fillStyle = stoneGradient;
                 ctx.beginPath();
@@ -614,21 +642,24 @@
                 ctx.fill();
 
                 // 돌 하이라이트
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                const highlightGradient = ctx.createRadialGradient(stonePos.x - 6, stonePos.y - 6, 0, stonePos.x - 6, stonePos.y - 6, 8);
+                highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+                highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = highlightGradient;
                 ctx.beginPath();
-                ctx.arc(stonePos.x - 4, stonePos.y - 4, 4, 0, Math.PI * 2);
+                ctx.arc(stonePos.x - 6, stonePos.y - 6, 8, 0, Math.PI * 2);
                 ctx.fill();
 
                 // 돌 테두리
-                ctx.strokeStyle = 'rgba(196, 30, 58, 0.8)';
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(196, 30, 58, 0.9)';
+                ctx.lineWidth = 2.5;
                 ctx.stroke();
 
                 // 드래그 시 궤적 표시
                 if (isDragging) {
-                    ctx.strokeStyle = 'rgba(255, 200, 100, 0.5)';
+                    ctx.strokeStyle = 'rgba(255, 200, 100, 0.6)';
                     ctx.lineWidth = 3;
-                    ctx.setLineDash([5, 5]);
+                    ctx.setLineDash([6, 4]);
                     ctx.beginPath();
                     ctx.moveTo(stonePos.x, stonePos.y);
                     ctx.lineTo(dragStart.x, dragStart.y);
@@ -639,10 +670,20 @@
                     const dx = dragStart.x - stonePos.x;
                     const dy = dragStart.y - stonePos.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
-                    ctx.fillStyle = 'rgba(255, 200, 100, 0.6)';
-                    ctx.font = 'bold 14px Arial';
+                    const power = Math.round((distance / 3) % 100);
+
+                    ctx.fillStyle = 'rgba(255, 200, 100, 0.8)';
+                    ctx.font = 'bold 16px Arial';
                     ctx.textAlign = 'center';
-                    ctx.fillText(`POWER: ${Math.round(distance / 2)}%`, stonePos.x, stonePos.y - 30);
+                    ctx.fillText(`💪 ${power}%`, stonePos.x, stonePos.y - 40);
+
+                    // 화살표 표시
+                    const arrowLen = 40;
+                    const arrowAngle = Math.atan2(dy, dx);
+                    ctx.fillStyle = 'rgba(255, 200, 100, 0.5)';
+                    ctx.beginPath();
+                    ctx.arc(stonePos.x + Math.cos(arrowAngle) * arrowLen, stonePos.y + Math.sin(arrowAngle) * arrowLen, 6, 0, Math.PI * 2);
+                    ctx.fill();
                 }
 
             }, [stonePos, isDragging, dragStart]);
@@ -663,12 +704,14 @@
                 };
 
                 const handleStart = (e) => {
+                    if (isMoving) return; // 이미 움직이고 있으면 드래그 불가
+
                     const coords = getCoords(e);
                     const dx = coords.x - stonePos.x;
                     const dy = coords.y - stonePos.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
-                    if (dist < STONE_RADIUS * 3 && Math.abs(stoneVel.x) < 1 && Math.abs(stoneVel.y) < 1) {
+                    if (dist < STONE_RADIUS * 2.5) {
                         setIsDragging(true);
                         setDragStart(coords);
                         SoundManager.playDrag();
@@ -689,11 +732,12 @@
 
                         if (power > 10) {
                             const angle = Math.atan2(dy, dx);
-                            const velocity = Math.min(power * 0.6, 25);
+                            const velocity = Math.min(power * 0.5, 20);
                             setStoneVel({
                                 x: Math.cos(angle) * velocity,
                                 y: Math.sin(angle) * velocity
                             });
+                            setIsMoving(true);
                             SoundManager.playDrag();
                         }
                         setIsDragging(false);
@@ -715,23 +759,23 @@
                     canvas.removeEventListener('touchmove', handleMove);
                     canvas.removeEventListener('touchend', handleEnd);
                 };
-            }, [stonePos, isDragging, dragStart, stoneVel]);
+            }, [stonePos, isDragging, dragStart, stoneVel, isMoving]);
 
-            // 물리 시뮬레이션
+            // 물리 시뮬레이션 및 최종 위치 감지
             useEffect(() => {
                 const interval = setInterval(() => {
-                    setStonePos(prev => {
-                        setStoneVel(vel => {
+                    setStoneVel(vel => {
+                        setStonePos(prev => {
+                            let newX = prev.x + vel.x;
+                            let newY = prev.y + vel.y;
                             let newVel = { ...vel };
-                            const canvas = canvasRef.current;
-                            if (!canvas) return newVel;
 
-                            let newX = prev.x + newVel.x;
-                            let newY = prev.y + newVel.y;
+                            const canvas = canvasRef.current;
+                            if (!canvas) return prev;
 
                             const width = canvas.width;
                             const height = canvas.height;
-                            const margin = 50;
+                            const margin = 30;
 
                             // 벽 충돌 (당구처럼 반사)
                             if (newX - STONE_RADIUS < margin) {
@@ -744,54 +788,73 @@
                                 newVel.x = -newVel.x * 0.8;
                                 SoundManager.playCollision();
                             }
-                            if (newY - STONE_RADIUS < 20) {
-                                newY = 20 + STONE_RADIUS;
+                            if (newY - STONE_RADIUS < 40) {
+                                newY = 40 + STONE_RADIUS;
                                 newVel.y = -newVel.y * 0.8;
                                 SoundManager.playCollision();
                             }
-                            if (newY + STONE_RADIUS > height - 20) {
-                                newY = height - 20 - STONE_RADIUS;
+                            if (newY + STONE_RADIUS > height - 150) {
+                                newY = height - 150 - STONE_RADIUS;
                                 newVel.y = -newVel.y * 0.8;
                                 SoundManager.playCollision();
                             }
 
-                            // 구멍 충돌 감지
-                            HOLES.forEach((hole, idx) => {
-                                const dx = newX - hole.x;
-                                const dy = newY - hole.y;
-                                const distance = Math.sqrt(dx * dx + dy * dy);
+                            // 마찰
+                            newVel.x *= 0.97;
+                            newVel.y *= 0.97;
 
-                                if (distance < HOLE_RADIUS) {
+                            const speed = Math.sqrt(newVel.x ** 2 + newVel.y ** 2);
+
+                            // 속도가 거의 없으면 멈춤 + 최종 위치 감지
+                            if (speed < 0.3) {
+                                newVel = { x: 0, y: 0 };
+                                
+                                // 최종 위치에서 가장 가까운 구멍 찾기
+                                let closestHole = null;
+                                let minDistance = HOLE_RADIUS;
+
+                                HOLES.forEach((hole) => {
+                                    const dx = newX - hole.x;
+                                    const dy = newY - hole.y;
+                                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                                    if (distance < minDistance) {
+                                        minDistance = distance;
+                                        closestHole = hole;
+                                    }
+                                });
+
+                                // 구멍에 걸쳐있으면 팝업 표시
+                                if (closestHole && isMoving) {
                                     SoundManager.playHole();
                                     setShowPopup(true);
-                                    setPopupData(layers[idx]);
-                                    newX = prev.x;
-                                    newY = prev.y;
-                                    newVel = { x: 0, y: 0 };
+                                    setPopupData(layers[closestHole.index]);
+                                    setIsMoving(false);
+                                    newX = initialStonePos.x;
+                                    newY = initialStonePos.y;
+                                } else if (isMoving) {
+                                    setIsMoving(false);
+                                    newX = initialStonePos.x;
+                                    newY = initialStonePos.y;
                                 }
-                            });
+                            }
 
-                            // 마찰 계산
-                            newVel.x *= 0.98;
-                            newVel.y *= 0.98;
+                            if (Math.abs(newVel.x) < 0.05) newVel.x = 0;
+                            if (Math.abs(newVel.y) < 0.05) newVel.y = 0;
 
-                            if (Math.abs(newVel.x) < 0.1) newVel.x = 0;
-                            if (Math.abs(newVel.y) < 0.1) newVel.y = 0;
-
-                            setStonePos({ x: newX, y: newY });
-                            return newVel;
+                            setStoneVel(newVel);
+                            return { x: newX, y: newY };
                         });
-
-                        return prev;
+                        return vel;
                     });
                 }, 30);
 
                 return () => clearInterval(interval);
-            }, [layers]);
+            }, [isMoving, initialStonePos, layers]);
 
             return (
-                <div className="game-container">
-                    <div className="game-header">🎯 컬링 게임 | 컬링돌을 드래그해서 구멍에 넣으세요!</div>
+                <div className="game-wrapper">
+                    <div className="game-header">🎯 컬링 게임 | 컬링돌을 드래그해서 목표에 넣으세요!</div>
                     
                     <div className="canvas-container">
                         <canvas ref={canvasRef}></canvas>
@@ -799,8 +862,9 @@
 
                     <div className="game-controls">
                         <button className="btn-game btn-restart" onClick={() => {
-                            setStonePos({ x: 250, y: 50 });
+                            setStonePos(initialStonePos);
                             setStoneVel({ x: 0, y: 0 });
+                            setIsMoving(false);
                             SoundManager.playDrag();
                         }}>↺ 다시하기</button>
                         <button className="btn-game btn-setup" onClick={onReset}>⚙️ 설정</button>
