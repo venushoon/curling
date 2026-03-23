@@ -778,8 +778,8 @@
 
         function GameScreen({ gameMode, displayMode, layers, onReset, onHome }) {
             const canvasRef = useRef(null);
-            const [stonePos, setStonePos] = useState({ x: 450, y: 700 });
-            const [initialStonePos] = useState({ x: 450, y: 700 });
+            const [stonePos, setStonePos] = useState({ x: 450, y: 760 });
+            const [initialStonePos] = useState({ x: 450, y: 760 });
             const [stoneVel, setStoneVel] = useState({ x: 0, y: 0 });
             const [isDragging, setIsDragging] = useState(false);
             const [isDraggedPos, setIsDraggedPos] = useState({ x: 0, y: 0 });
@@ -790,7 +790,7 @@
 
             const STONE_RADIUS = 25;
             const HOLE_RADIUS = 50;
-            const START_LINE_Y = 700;
+            const START_LINE_Y = 760;
             const START_LINE_HEIGHT = 80;
 
             const HOLES = [
@@ -1021,8 +1021,8 @@
                         // START 라인 범위 내에서만 이동 가능
                         const dragMinX = 100;  // 좌측 범위
                         const dragMaxX = 800;  // 우측 범위
-                        const dragMinY = 660;  // 상단 범위
-                        const dragMaxY = 740;  // 하단 범위
+                        const dragMinY = 710;  // 상단 범위
+                        const dragMaxY = 800;  // 하단 범위
                         
                         const boundedX = Math.max(dragMinX, Math.min(dragMaxX, coords.x));
                         const boundedY = Math.max(dragMinY, Math.min(dragMaxY, coords.y));
@@ -1109,8 +1109,8 @@
                                 newVel.y = -newVel.y * 0.8;
                                 SoundManager.playCollision();
                             }
-                            if (newY + STONE_RADIUS > height - 50) {
-                                newY = height - 50 - STONE_RADIUS;
+                            if (newY + STONE_RADIUS > height - 10) {
+                                newY = height - 10 - STONE_RADIUS;
                                 newVel.y = -newVel.y * 0.8;
                                 SoundManager.playCollision();
                             }
@@ -1204,7 +1204,11 @@
                                     <img src={popupData.image} alt="result" className="popup-image" />
                                 )}
                                 <p className="popup-text">{popupData.text}</p>
-                                <button className="popup-btn" onClick={() => setShowPopup(false)}>
+                                <button className="popup-btn" onClick={() => {
+                                    setShowPopup(false);
+                                    setStonePos(initialStonePos);
+                                    setStoneVel({ x: 0, y: 0 });
+                                }}>
                                     🎮 계속하기
                                 </button>
                             </div>
