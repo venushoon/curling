@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 프로 컬링 게임 - 최적화 레이아웃</title>
+    <title>🎯 프로 컬링 게임 - 레이아웃 최적화</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -72,8 +72,18 @@
 
         canvas { flex: 1; touch-action: none; cursor: crosshair; }
         
-        .side-buttons { position: absolute; top: 15px; right: 15px; z-index: 10; display: flex; gap: 8px; }
-        .btn-game { padding: 8px 16px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; font-size: 12px; }
+        /* 버튼 위치 맨 하단으로 조정 */
+        .bottom-buttons { 
+            position: absolute; bottom: 20px; left: 0; right: 0; 
+            z-index: 10; display: flex; justify-content: center; gap: 15px; 
+            pointer-events: none; /* 배경은 클릭 안되게 */
+        }
+        .btn-game { 
+            padding: 10px 20px; border-radius: 12px; border: none; 
+            font-weight: bold; cursor: pointer; color: white; font-size: 14px;
+            pointer-events: auto; /* 버튼만 클릭 가능하게 */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
         .btn-setup { background-color: #4ecdc4; }
         .btn-home { background-color: #667eea; }
 
@@ -218,7 +228,7 @@
                 isMoving: false,
                 canvasWidth: 0,
                 canvasHeight: 0,
-                padding: 20 // padding을 state에 포함시켜 어디서든 참조 가능하게 수정
+                padding: 20
             });
 
             const resize = () => {
@@ -243,13 +253,13 @@
                 state.current.canvasHeight = canvasHeight;
 
                 state.current.stone.x = canvasWidth / 2;
-                state.current.stone.y = canvasHeight - 120;
+                state.current.stone.y = canvasHeight - 160; // 버튼 이동으로 인해 하단 여백 확보
 
                 const newHoles = [];
                 const padding = state.current.padding;
-                const startY = padding + 60;
+                const startY = 80; // 상단 여백
                 const colSpacing = (canvasWidth - padding * 2) / 2;
-                const rowSpacing = 80;
+                const rowSpacing = 110; // 과녁 간 세로 간격 넓힘 (텍스트 겹침 방지)
 
                 for(let i=0; i<6; i++) {
                     const row = Math.floor(i / 2);
@@ -257,7 +267,7 @@
                     newHoles.push({
                         x: padding + colSpacing / 2 + col * colSpacing,
                         y: startY + row * rowSpacing,
-                        r: 30,
+                        r: 32,
                         index: i
                     });
                 }
@@ -269,7 +279,7 @@
                 s.vx = 0; s.vy = 0;
                 if(toStartLine) {
                     s.x = state.current.canvasWidth / 2;
-                    s.y = state.current.canvasHeight - 120;
+                    s.y = state.current.canvasHeight - 160;
                 }
             };
 
@@ -322,7 +332,7 @@
                 const draw = () => {
                     const cH = state.current.canvasHeight;
                     const cW = state.current.canvasWidth;
-                    const padding = state.current.padding; // state에서 안전하게 참조
+                    const padding = state.current.padding;
                     ctx.clearRect(0, 0, cW, cH);
                     
                     const grad = ctx.createLinearGradient(0,0,0, cH);
@@ -338,7 +348,7 @@
                     ctx.beginPath();
                     ctx.moveTo(cW/2, 20); ctx.lineTo(cW/2, cH-20); ctx.stroke();
                     
-                    const startLineY = cH - 150;
+                    const startLineY = cH - 190;
                     ctx.beginPath();
                     ctx.moveTo(10, startLineY); ctx.lineTo(cW-10, startLineY); ctx.stroke();
                     
@@ -368,9 +378,11 @@
                         ctx.textBaseline = 'middle';
                         ctx.fillText(i+1, h.x, h.y);
                         
+                        // 텍스트 간격 조정: 과녁 원 반지름보다 아래에 충분한 여백 확보
                         ctx.fillStyle = '#444';
-                        ctx.font = '14px Sans-serif';
-                        ctx.fillText(layers[i].title, h.x, h.y + h.r + 20);
+                        ctx.font = 'bold 15px Sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(layers[i].title, h.x, h.y + h.r + 28);
                     });
 
                     if(state.current.drag.active) {
@@ -401,14 +413,14 @@
                 const onDown = (e) => {
                     if(state.current.isMoving || popup) return;
                     const rect = canvas.getBoundingClientRect();
-                    const clientX = e.clientX || e.touches[0].clientX;
-                    const clientY = e.clientY || e.touches[0].clientY;
+                    const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+                    const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
                     
                     const x = (clientX - rect.left) * (canvas.width / rect.width);
                     const y = (clientY - rect.top) * (canvas.height / rect.height);
                     
                     const s = state.current.stone;
-                    if(Math.hypot(x - s.x, y - s.y) < s.r * 2.5) {
+                    if(Math.hypot(x - s.x, y - s.y) < s.r * 3) {
                         state.current.drag.active = true;
                         state.current.drag.startX = x;
                         state.current.drag.startY = y;
@@ -423,26 +435,20 @@
                     const rect = canvas.getBoundingClientRect();
                     const scaleX = canvas.width / rect.width;
                     const scaleY = canvas.height / rect.height;
-
                     const clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
                     const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-
                     state.current.drag.currX = (clientX - rect.left) * scaleX;
                     state.current.drag.currY = (clientY - rect.top) * scaleY;
                 };
 
-                const onUp = (e) => {
+                const onUp = () => {
                     if(!state.current.drag.active || popup) return;
                     const s = state.current.stone;
                     const d = state.current.drag;
-                    
                     const dx = d.startX - d.currX;
                     const dy = d.startY - d.currY;
-                    
-                    const powerLimit = state.current.canvasHeight / 12;
                     s.vx = dx * 0.15;
                     s.vy = dy * 0.15;
-                    
                     if(Math.hypot(s.vx, s.vy) > 1.5) {
                         state.current.isMoving = true;
                         SoundManager.play(600, 0.2);
@@ -480,12 +486,14 @@
 
             return (
                 <div className="game-wrapper" ref={wrapperRef}>
-                    <div className="side-buttons">
+                    <canvas ref={canvasRef} />
+                    
+                    {/* 버튼을 캔버스 내부 하단에 배치 */}
+                    <div className="bottom-buttons">
                         <button className="btn-game btn-setup" onClick={onExit}>⚙️ 설정</button>
                         <button className="btn-game btn-home" onClick={onHome}>🏠 홈</button>
                     </div>
-                    <canvas ref={canvasRef} />
-                    
+
                     {popup && (
                         <div className="popup-overlay">
                             <div className="popup-content">
