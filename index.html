@@ -301,18 +301,16 @@
         }
 
         .game-top-bar {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 12px 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
-            border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
         }
 
         .game-title-top {
-            color: white;
-            font-weight: 800;
-            font-size: 16px;
+            display: none;
         }
 
         .top-buttons {
@@ -784,8 +782,8 @@
 
         function GameScreen({ gameMode, displayMode, layers, onReset, onHome }) {
             const canvasRef = useRef(null);
-            const [stonePos, setStonePos] = useState({ x: 450, y: 700 });
-            const [initialStonePos] = useState({ x: 450, y: 700 });
+            const [stonePos, setStonePos] = useState({ x: 450, y: 750 });
+            const [initialStonePos] = useState({ x: 450, y: 750 });
             const [stoneVel, setStoneVel] = useState({ x: 0, y: 0 });
             const [isDragging, setIsDragging] = useState(false);
             const [isDraggedPos, setIsDraggedPos] = useState({ x: 0, y: 0 });
@@ -795,17 +793,17 @@
             const [isMoving, setIsMoving] = useState(false);
 
             const STONE_RADIUS = 25;
-            const HOLE_RADIUS = 50;
-            const START_LINE_Y = 680;
-            const START_LINE_HEIGHT = 100;
+            const HOLE_RADIUS = 25;
+            const START_LINE_Y = 750;
+            const START_LINE_HEIGHT = 80;
 
             const HOLES = [
-                { x: 150, y: 150, index: 0 },
-                { x: 450, y: 150, index: 1 },
-                { x: 750, y: 150, index: 2 },
-                { x: 150, y: 350, index: 3 },
-                { x: 450, y: 350, index: 4 },
-                { x: 750, y: 350, index: 5 }
+                { x: 200, y: 100, index: 0 },
+                { x: 700, y: 100, index: 1 },
+                { x: 200, y: 270, index: 2 },
+                { x: 700, y: 270, index: 3 },
+                { x: 200, y: 440, index: 4 },
+                { x: 700, y: 440, index: 5 }
             ];
 
             // 캔버스 그리기
@@ -834,14 +832,14 @@
                 // 컬링 경계선
                 ctx.strokeStyle = 'rgba(100, 100, 120, 0.4)';
                 ctx.lineWidth = 3;
-                ctx.strokeRect(50, 80, width - 100, height - 180);
+                ctx.strokeRect(50, 50, width - 100, height - 120);
 
                 // 중심선 (점선)
                 ctx.strokeStyle = 'rgba(100, 100, 120, 0.2)';
                 ctx.setLineDash([10, 10]);
                 ctx.beginPath();
-                ctx.moveTo(width / 2, 80);
-                ctx.lineTo(width / 2, height - 100);
+                ctx.moveTo(width / 2, 50);
+                ctx.lineTo(width / 2, height - 70);
                 ctx.stroke();
                 ctx.setLineDash([]);
 
@@ -1071,13 +1069,13 @@
                                 newVel.x = -newVel.x * 0.8;
                                 SoundManager.playCollision();
                             }
-                            if (newY - STONE_RADIUS < 80) {
-                                newY = 80 + STONE_RADIUS;
+                            if (newY - STONE_RADIUS < 50) {
+                                newY = 50 + STONE_RADIUS;
                                 newVel.y = -newVel.y * 0.8;
                                 SoundManager.playCollision();
                             }
-                            if (newY + STONE_RADIUS > height - 100) {
-                                newY = height - 100 - STONE_RADIUS;
+                            if (newY + STONE_RADIUS > height - 70) {
+                                newY = height - 70 - STONE_RADIUS;
                                 newVel.y = -newVel.y * 0.8;
                                 SoundManager.playCollision();
                             }
