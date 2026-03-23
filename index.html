@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 프로 컬링 게임 - 최종 완성본</title>
+    <title>🎯 프로 컬링 게임 - 팀 대결 모드</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -17,12 +17,10 @@
             display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
 
-        /* 홈 화면 디자인 */
+        /* 홈 화면 */
         .home-container {
-            width: 90%; max-width: 600px;
-            background: white; border-radius: 30px;
-            padding: 60px 25px; text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            width: 90%; max-width: 600px; background: white; border-radius: 30px;
+            padding: 60px 25px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
         .home-title {
             font-size: clamp(32px, 8vw, 48px); font-weight: 900; margin-bottom: 15px;
@@ -34,42 +32,30 @@
         .mode-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white; padding: 40px 10px; border-radius: 20px;
-            cursor: pointer; transition: all 0.3s;
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 20px rgba(102,126,234,0.3);
         }
-        .mode-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(102, 126, 234, 0.5); }
+        .mode-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(102,126,234,0.5); }
+        .mode-card.versus { background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%); }
 
-        /* 설정 페이지 디자인 */
+        /* 설정 페이지 */
         .setup-container {
             width: 95vw; max-width: 1000px; max-height: 90vh;
             background: white; border-radius: 25px; padding: 30px 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow-y: auto;
         }
-        .setup-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 20px; border-bottom: 3px solid #e0e7ff; padding-bottom: 15px;
-            gap: 10px; flex-wrap: wrap;
-        }
+        .setup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 3px solid #e0e7ff; padding-bottom: 15px; gap: 10px; flex-wrap: wrap; }
         .setup-header h2 { font-size: clamp(20px, 5vw, 28px); font-weight: 900; color: #333; }
-        
         .tournament-input-group { background: #f0f4ff; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 2px dashed #667eea; }
         .layers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
-        .layer-card { background: #f8f9ff; border: 1px solid #e0e7ff; border-radius: 15px; padding: 15px; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .layer-card { background: #f8f9ff; border: 1px solid #e0e7ff; border-radius: 15px; padding: 15px; position: relative; }
         .form-label { font-size: 11px; font-weight: bold; color: #667eea; display: block; margin-bottom: 5px; }
         input[type="text"], textarea { width: 100%; padding: 12px; border: 2px solid #e0e7ff; border-radius: 10px; font-family: inherit; }
         
-        /* 이미지 미리보기 및 삭제 버튼 */
         .preview-container { position: relative; width: 100%; height: 100px; margin-top: 10px; }
         .img-preview { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; border: 2px solid #e0e7ff; }
-        .btn-delete-img {
-            position: absolute; top: -8px; right: -8px;
-            width: 28px; height: 28px; background: #ff4757; color: white;
-            border: none; border-radius: 50%; cursor: pointer;
-            font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 8px rgba(255, 71, 87, 0.4); z-index: 5;
-        }
+        .btn-delete-img { position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; background: #ff4757; color: white; border: none; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(255, 71, 87, 0.4); z-index: 5; }
 
-        /* 게임 화면 프레임 디자인 */
+        /* 게임 화면 프레임 */
         .game-wrapper {
             position: relative; height: 98vh; width: auto; background: #f0faff; 
             border-radius: 40px; box-shadow: 0 0 50px rgba(0,0,0,0.8);
@@ -78,41 +64,27 @@
         @media (max-width: 768px) { .game-wrapper { height: 100vh; width: 100vw; border-radius: 0; border: none; } }
         canvas { flex: 1; touch-action: none; cursor: crosshair; }
 
-        .tournament-banner { position: absolute; top: 25px; width: 100%; text-align: center; z-index: 5; pointer-events: none; }
-        .tournament-name {
-            display: inline-block; padding: 10px 35px; background: rgba(255, 255, 255, 0.95);
-            border: 3px solid #667eea; border-radius: 50px; color: #4a148c; font-weight: 900; 
-            font-size: clamp(14px, 4vw, 22px); box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-        }
+        /* 배너 및 점수판 디자인 */
+        .tournament-banner { position: absolute; top: 15px; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 5; pointer-events: none; gap: 5px; }
+        .tournament-name { display: inline-block; padding: 5px 25px; background: rgba(255, 255, 255, 0.95); border: 2px solid #667eea; border-radius: 50px; color: #4a148c; font-weight: 900; font-size: clamp(12px, 3vw, 18px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* 팀 대결 점수판 */
+        .scoreboard { background: rgba(0, 0, 0, 0.8); border: 2px solid #fff; border-radius: 10px; padding: 5px; color: white; font-size: 10px; min-width: 280px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .scoreboard table { width: 100%; border-collapse: collapse; text-align: center; }
+        .scoreboard th, .scoreboard td { border: 1px solid rgba(255,255,255,0.3); padding: 2px 4px; }
+        .team-red { color: #ff5252; font-weight: bold; }
+        .team-blue { color: #448aff; font-weight: bold; }
+        .current-turn-label { font-size: 12px; font-weight: 900; padding: 3px 15px; border-radius: 5px; margin-top: 3px; }
 
-        /* [수정] 박스 없이 간결한 아이콘 버튼 영역 */
-        .bottom-ui-area { 
-            position: absolute; bottom: 20px; left: 0; right: 0; 
-            display: flex; justify-content: center; gap: 30px; 
-            z-index: 10; pointer-events: none; 
-        }
-        .btn-icon-simple {
-            background: none; border: none; cursor: pointer; 
-            font-size: 32px; /* 아이콘 크기 적절히 확대 */
-            pointer-events: auto;
-            transition: transform 0.2s;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); /* 그림자로 시인성 확보 */
-        }
+        /* 하단 아이콘 버튼 */
+        .bottom-ui-area { position: absolute; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 30px; z-index: 10; pointer-events: none; }
+        .btn-icon-simple { background: none; border: none; cursor: pointer; font-size: 32px; pointer-events: auto; transition: transform 0.2s; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
         .btn-icon-simple:hover { transform: scale(1.2); }
-
-        /* 설정창 텍스트 버튼 */
-        .btn-game-text {
-            padding: 14px 28px; border-radius: 15px; border: none;
-            font-weight: 900; cursor: pointer; color: white; font-size: 16px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: all 0.2s;
-        }
-        .btn-game-text:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        .btn-game-text { padding: 14px 28px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; color: white; font-size: 16px; box-shadow: 0 6px 15px rgba(0,0,0,0.2); transition: all 0.2s; }
 
         /* 팝업 디자인 */
         .popup-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .popup-content { background: white; border-radius: 35px; padding: 40px; max-width: 480px; width: 90%; text-align: center; box-shadow: 0 30px 70px rgba(0,0,0,0.6); }
-        .popup-emoji { font-size: 80px; margin-bottom: 15px; }
-        .popup-image { width: 100%; height: 220px; object-fit: cover; border-radius: 20px; margin: 15px 0; border: 3px solid #f0f4ff; }
         .popup-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 15px; font-size: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4); }
     </style>
 </head>
@@ -144,9 +116,10 @@
 
         function CurlingApp() {
             const [page, setPage] = useState('home');
+            const [mode, setMode] = useState('single'); // 'single' or 'versus'
             const [tournamentTitle, setTournamentTitle] = useState('우리 반 컬링 대회');
             const [layers, setLayers] = useState(Array(6).fill(null).map((_, i) => ({
-                id: i, emoji: '🎯', title: `목표 ${i + 1}`, text: `축하합니다! ${i+1}번 과녁 명중!`, image: ''
+                id: i, title: `과녁 ${i + 1}`, text: `명중!`, image: ''
             })));
 
             const updateLayer = (idx, field, val) => {
@@ -155,9 +128,14 @@
                 setLayers(next);
             };
 
+            const startGame = (selectedMode) => {
+                setMode(selectedMode);
+                setPage('setup');
+            };
+
             return (
                 <div style={{width: '100%'}}>
-                    {page === 'home' && <Home onStart={() => setPage('setup')} />}
+                    {page === 'home' && <Home onStart={startGame} />}
                     {page === 'setup' && (
                         <Setup 
                             title={tournamentTitle} setTitle={setTournamentTitle}
@@ -165,7 +143,7 @@
                             onBack={() => setPage('home')} onPlay={() => setPage('game')} 
                         />
                     )}
-                    {page === 'game' && <Game title={tournamentTitle} layers={layers} onExit={() => setPage('setup')} onHome={() => setPage('home')} />}
+                    {page === 'game' && <Game mode={mode} title={tournamentTitle} layers={layers} onExit={() => setPage('setup')} onHome={() => setPage('home')} />}
                 </div>
             );
         }
@@ -176,8 +154,8 @@
                     <h1 className="home-title">🎯 프로 컬링 게임</h1>
                     <p style={{color:'#666', marginBottom:'25px', fontSize:'18px'}}>실감나는 물리 엔진 컬링 대회</p>
                     <div className="mode-grid">
-                        <div className="mode-card" onClick={onStart}><h2 style={{fontSize:'24px'}}>시작하기</h2><p style={{fontSize:'14px', marginTop:'8px', opacity:0.9}}>대회명 및 목표 설정</p></div>
-                        <div className="mode-card" style={{opacity: 0.7, background: '#bdc3c7'}}><h2 style={{fontSize:'24px'}}>팀 대결</h2><p style={{fontSize:'14px', marginTop:'8px'}}>준비 중</p></div>
+                        <div className="mode-card" onClick={() => onStart('single')}><h2>연습하기</h2><p style={{fontSize:'13px', marginTop:'5px'}}>혼자서 자유롭게 던지기</p></div>
+                        <div className="mode-card versus" onClick={() => onStart('versus')}><h2>팀 대결</h2><p style={{fontSize:'13px', marginTop:'5px'}}>RED vs BLUE 10회 대전</p></div>
                     </div>
                 </div>
             );
@@ -194,31 +172,29 @@
                         </div>
                     </div>
                     <div className="tournament-input-group">
-                        <label className="form-label" style={{fontSize:'14px'}}>🏆 컬링 대회 명칭</label>
+                        <label className="form-label">🏆 대회 명칭</label>
                         <input type="text" value={title} onChange={e => setTitle(e.target.value)} style={{fontSize:'20px', fontWeight:'bold', border:'2px solid #667eea'}} />
                     </div>
                     <div className="layers-grid">
                         {layers.map((l, i) => (
                             <div key={i} className="layer-card">
-                                <strong style={{color:'#667eea', fontSize:'18px'}}>과녁 #{i+1}</strong>
-                                <div style={{marginTop:'12px'}}><label className="form-label">목표 이름</label><input type="text" value={l.title} onChange={e => onUpdate(i, 'title', e.target.value)} /></div>
-                                <div style={{marginTop:'10px'}}><label className="form-label">명중 메시지</label><textarea value={l.text} onChange={e => onUpdate(i, 'text', e.target.value)} rows="2" /></div>
-                                <div style={{marginTop:'10px'}}>
-                                    <label className="form-label">이미지 업로드</label>
-                                    <input type="file" accept="image/*" onChange={e => {
-                                        const file = e.target.files[0];
-                                        if(file) {
-                                            const reader = new FileReader();
-                                            reader.onload = (ev) => onUpdate(i, 'image', ev.target.result);
-                                            reader.readAsDataURL(file);
-                                        }
-                                    }} />
-                                    {l.image && (
-                                        <div className="preview-container">
-                                            <img src={l.image} className="img-preview" />
-                                            <button className="btn-delete-img" onClick={() => onUpdate(i, 'image', '')}>✕</button>
-                                        </div>
-                                    )}
+                                <strong style={{color:'#667eea'}}>과녁 #{i+1}</strong>
+                                <div style={{marginTop:'10px'}}><label className="form-label">이름</label><input type="text" value={l.title} onChange={e => onUpdate(i, 'title', e.target.value)} /></div>
+                                <div style={{marginTop:'8px'}}><label className="form-label">이미지</label>
+                                <input type="file" accept="image/*" onChange={e => {
+                                    const file = e.target.files[0];
+                                    if(file) {
+                                        const reader = new FileReader();
+                                        reader.onload = (ev) => onUpdate(i, 'image', ev.target.result);
+                                        reader.readAsDataURL(file);
+                                    }
+                                }} />
+                                {l.image && (
+                                    <div className="preview-container">
+                                        <img src={l.image} className="img-preview" />
+                                        <button className="btn-delete-img" onClick={() => onUpdate(i, 'image', '')}>✕</button>
+                                    </div>
+                                )}
                                 </div>
                             </div>
                         ))}
@@ -227,17 +203,29 @@
             );
         }
 
-        function Game({ title, layers, onExit, onHome }) {
+        function Game({ mode, title, layers, onExit, onHome }) {
             const canvasRef = useRef(null);
             const wrapperRef = useRef(null);
             const [popup, setPopup] = useState(null);
             const imagesRef = useRef([]); 
             
+            // 팀 대결 상태
+            const [scores, setScores] = useState({ red: Array(10).fill(null), blue: Array(10).fill(null) });
+            const [turn, setTurn] = useState('red');
+            const [round, setRound] = useState(0); // 0~9 (총 10회)
+            const [gameOver, setGameOver] = useState(false);
+            const [holeValues, setHoleValues] = useState([1, 2, 3, 4, 5, 6]);
+
             const state = useRef({
                 stone: { x: 0, y: 0, vx: 0, vy: 0, r: 22 },
                 drag: { active: false, startX: 0, startY: 0, currX: 0, currY: 0 },
                 holes: [], isMoving: false, canvasWidth: 0, canvasHeight: 0
             });
+
+            // 점수 무작위 섞기 함수
+            const shuffleHoles = () => {
+                setHoleValues([...holeValues].sort(() => Math.random() - 0.5));
+            };
 
             useEffect(() => {
                 layers.forEach((l, i) => {
@@ -247,6 +235,7 @@
                         imagesRef.current[i] = img;
                     } else { imagesRef.current[i] = null; }
                 });
+                if(mode === 'versus') shuffleHoles();
             }, [layers]);
 
             const resize = () => {
@@ -261,7 +250,7 @@
                 state.current.canvasWidth = w; state.current.canvasHeight = h;
                 state.current.stone.x = w / 2; state.current.stone.y = h - 110;
                 const newHoles = [];
-                const padding = 25; const startY = 125; const colW = (w - padding * 2) / 2; const rowH = 125;
+                const padding = 25; const startY = 160; const colW = (w - padding * 2) / 2; const rowH = 110;
                 for(let i=0; i<6; i++) {
                     const row = Math.floor(i / 2); const col = i % 2;
                     newHoles.push({ x: padding + colW / 2 + col * colW, y: startY + row * rowH, r: 36, index: i });
@@ -290,7 +279,19 @@
                         if(Math.hypot(s.vx, s.vy) < 0.25) {
                             state.current.isMoving = false;
                             const hit = state.current.holes.find(h => Math.hypot(s.x - h.x, s.y - h.y) < h.r + s.r);
-                            if(hit) { SoundManager.playHole(); setPopup(layers[hit.index]); resetStone(false); } else resetStone(true);
+                            if(hit) {
+                                SoundManager.playHole();
+                                const score = holeValues[hit.index];
+                                if(mode === 'versus') {
+                                    const newScores = {...scores};
+                                    newScores[turn][round] = score;
+                                    setScores(newScores);
+                                    setPopup({ ...layers[hit.index], title: `${turn.toUpperCase()} 팀 ${score}점 획득!`, text: layers[hit.index].text });
+                                } else {
+                                    setPopup(layers[hit.index]);
+                                }
+                                resetStone(false);
+                            } else { resetStone(true); }
                         }
                     }
                 };
@@ -300,37 +301,66 @@
                     const grad = ctx.createLinearGradient(0,0,0, cH);
                     grad.addColorStop(0, '#e3f2fd'); grad.addColorStop(1, '#bbdefb');
                     ctx.fillStyle = grad; ctx.fillRect(0,0, cW, cH);
-                    ctx.save(); ctx.strokeStyle = '#90caf9'; ctx.lineWidth = 2; ctx.setLineDash([10, 10]);
-                    ctx.beginPath(); ctx.moveTo(cW/2, 40); ctx.lineTo(cW/2, cH-40); ctx.stroke();
-                    const startZoneY = cH - 150; ctx.setLineDash([]); ctx.fillStyle = 'rgba(144, 202, 249, 0.3)';
-                    ctx.fillRect(0, startZoneY, cW, 80); ctx.strokeStyle = '#42a5f5'; ctx.strokeRect(0, startZoneY, cW, 80);
-                    ctx.fillStyle = '#1e88e5'; ctx.font = '900 14px Sans-serif'; ctx.textAlign = 'center'; ctx.fillText('S T A R T  Z O N E', cW/2, startZoneY + 20); ctx.restore();
-                    
+
+                    // 사이드 남은 스톤 표시 (팀 대결 모드 전용)
+                    if(mode === 'versus') {
+                        const redRemaining = scores.red.filter(s => s === null).length;
+                        const blueRemaining = scores.blue.filter(s => s === null).length;
+                        for(let i=0; i<redRemaining; i++) {
+                            ctx.beginPath(); ctx.arc(15, cH - 150 - (i*15), 6, 0, Math.PI*2);
+                            ctx.fillStyle = '#ff5252'; ctx.fill();
+                        }
+                        for(let i=0; i<blueRemaining; i++) {
+                            ctx.beginPath(); ctx.arc(cW - 15, cH - 150 - (i*15), 6, 0, Math.PI*2);
+                            ctx.fillStyle = '#448aff'; ctx.fill();
+                        }
+                    }
+
+                    // START 구역
+                    const startZoneY = cH - 150;
+                    ctx.fillStyle = 'rgba(144, 202, 249, 0.3)'; ctx.fillRect(0, startZoneY, cW, 80);
+                    ctx.strokeStyle = '#42a5f5'; ctx.strokeRect(0, startZoneY, cW, 80);
+
+                    // 과녁
                     state.current.holes.forEach((h, i) => {
-                        ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, Math.PI*2); ctx.fillStyle = '#212121'; ctx.fill();
-                        ctx.strokeStyle = '#ff1744'; ctx.lineWidth = 5; ctx.stroke();
+                        ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, Math.PI*2);
+                        ctx.fillStyle = '#212121'; ctx.fill();
+                        ctx.strokeStyle = turn === 'red' && mode === 'versus' ? '#ff5252' : turn === 'blue' && mode === 'versus' ? '#448aff' : '#ff1744';
+                        ctx.lineWidth = 5; ctx.stroke();
                         const img = imagesRef.current[i];
                         if (img && img.complete) {
                             ctx.save(); ctx.beginPath(); ctx.arc(h.x, h.y, h.r - 2, 0, Math.PI * 2); ctx.clip();
                             ctx.drawImage(img, h.x - h.r, h.y - h.r, h.r * 2, h.r * 2); ctx.restore();
-                        } else {
-                            ctx.fillStyle = 'white'; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(i+1, h.x, h.y);
                         }
-                        ctx.fillStyle = '#333'; ctx.font = '900 16px Sans-serif'; ctx.textAlign = 'center'; ctx.fillText(layers[i].title, h.x, h.y + h.r + 22);
+                        // 점수/숫자 표시
+                        ctx.fillStyle = 'white'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                        ctx.fillText(mode === 'versus' ? holeValues[i] : i+1, h.x, h.y);
+                        // 텍스트
+                        ctx.fillStyle = '#333'; ctx.font = '900 15px Sans-serif';
+                        ctx.fillText(layers[i].title, h.x, h.y + h.r + 20);
                     });
 
-                    if(state.current.drag.active) {
-                        const d = state.current.drag; const s = state.current.stone;
-                        ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(d.currX, d.currY);
-                        ctx.strokeStyle = 'rgba(255, 23, 68, 0.4)'; ctx.lineWidth = 3; ctx.stroke();
-                    }
+                    // 스톤 (턴에 따라 색상 변경)
                     const s = state.current.stone; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
                     const sG = ctx.createRadialGradient(s.x-6, s.y-6, 0, s.x, s.y, s.r);
-                    sG.addColorStop(0, '#ff8a65'); sG.addColorStop(1, '#d84315'); ctx.fillStyle = sG; ctx.fill();
-                    ctx.strokeStyle = '#bf360c'; ctx.lineWidth = 3; ctx.stroke();
+                    if(mode === 'versus') {
+                        if(turn === 'red') { sG.addColorStop(0, '#ff8a65'); sG.addColorStop(1, '#d84315'); }
+                        else { sG.addColorStop(0, '#64b5f6'); sG.addColorStop(1, '#1976d2'); }
+                    } else { sG.addColorStop(0, '#ff8a65'); sG.addColorStop(1, '#d84315'); }
+                    ctx.fillStyle = sG; ctx.fill();
+                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+
+                    // 드래그 가이드
+                    if(state.current.drag.active) {
+                        const d = state.current.drag;
+                        ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(d.currX, d.currY);
+                        ctx.strokeStyle = turn === 'red' ? 'rgba(255, 0, 0, 0.4)' : 'rgba(0, 0, 255, 0.4)';
+                        ctx.lineWidth = 3; ctx.stroke();
+                    }
                 };
+
                 const onDown = (e) => {
-                    if(state.current.isMoving || popup) return;
+                    if(state.current.isMoving || popup || gameOver) return;
                     const rect = canvas.getBoundingClientRect();
                     const cx = (e.clientX || e.touches[0].clientX); const cy = (e.clientY || e.touches[0].clientY);
                     const x = (cx - rect.left) * (canvas.width / rect.width); const y = (cy - rect.top) * (canvas.height / rect.height);
@@ -338,6 +368,7 @@
                         state.current.drag = { active: true, startX: x, startY: y, currX: x, currY: y }; SoundManager.play(800, 0.05);
                     }
                 };
+
                 const onMove = (e) => {
                     if(!state.current.drag.active) return;
                     const rect = canvas.getBoundingClientRect();
@@ -345,6 +376,7 @@
                     state.current.drag.currX = (cx - rect.left) * (canvas.width / rect.width);
                     state.current.drag.currY = (cy - rect.top) * (canvas.height / rect.height);
                 };
+
                 const onUp = () => {
                     if(!state.current.drag.active) return;
                     const d = state.current.drag; const s = state.current.stone;
@@ -352,31 +384,91 @@
                     if(Math.hypot(s.vx, s.vy) > 1.5) { state.current.isMoving = true; SoundManager.play(600, 0.2); } else resetStone(true);
                     state.current.drag.active = false;
                 };
+
                 canvas.addEventListener('mousedown', onDown); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp);
                 canvas.addEventListener('touchstart', onDown, { passive: false }); window.addEventListener('touchmove', onMove, { passive: false }); window.addEventListener('touchend', onUp);
                 loop();
                 return () => { cancelAnimationFrame(animationId); window.removeEventListener('resize', resize); };
-            }, [layers, title, popup]);
+            }, [layers, title, turn, round, holeValues, gameOver, popup]);
+
+            const nextTurn = () => {
+                setPopup(null);
+                resetStone(true);
+                if(mode === 'versus') {
+                    if(turn === 'blue') {
+                        if(round === 9) {
+                            setGameOver(true);
+                        } else {
+                            setRound(round + 1);
+                            setTurn('red');
+                            shuffleHoles();
+                        }
+                    } else {
+                        setTurn('blue');
+                        shuffleHoles();
+                    }
+                }
+            };
+
+            const redTotal = scores.red.reduce((a, b) => a + (b || 0), 0);
+            const blueTotal = scores.blue.reduce((a, b) => a + (b || 0), 0);
 
             return (
                 <div className="game-wrapper" ref={wrapperRef}>
-                    <div className="tournament-banner"><div className="tournament-name">🏆 {title}</div></div>
+                    <div className="tournament-banner">
+                        <div className="tournament-name">🏆 {title}</div>
+                        {mode === 'versus' && (
+                            <div className="scoreboard">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>TEAM</th>{Array(10).fill(0).map((_, i) => <th key={i}>{i+1}</th>)}<th>TOT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td className="team-red">RED</td>{scores.red.map((s, i) => <td key={i}>{s}</td>)}<td className="team-red">{redTotal}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="team-blue">BLUE</td>{scores.blue.map((s, i) => <td key={i}>{s}</td>)}<td className="team-blue">{blueTotal}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div className="current-turn-label" style={{background: turn === 'red' ? '#ff5252' : '#448aff'}}>
+                                    {turn.toUpperCase()} TURN - {round + 1}회차
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
                     <canvas ref={canvasRef} />
                     
-                    {/* [변경] 박스 없이 간결한 아이콘 버튼 */}
                     <div className="bottom-ui-area">
-                        <button className="btn-icon-simple" onClick={onExit} title="대회 설정">⚙️</button>
-                        <button className="btn-icon-simple" onClick={onHome} title="홈으로">🏠</button>
+                        <button className="btn-icon-simple" onClick={onExit} title="설정">⚙️</button>
+                        <button className="btn-icon-simple" onClick={onHome} title="홈">🏠</button>
                     </div>
 
                     {popup && (
                         <div className="popup-overlay">
                             <div className="popup-content">
-                                <div className="popup-emoji">{popup.emoji}</div>
-                                <h1 style={{color:'#667eea', fontSize:'32px'}}>{popup.title}</h1>
+                                <h1 style={{color: turn === 'red' ? '#ff5252' : '#448aff'}}>{popup.title}</h1>
                                 {popup.image && <img src={popup.image} className="popup-image" />}
-                                <p style={{margin:'20px 0', fontSize:'20px', fontWeight:'bold', color:'#333'}}>{popup.text}</p>
-                                <button className="popup-btn" onClick={() => { setPopup(null); resetStone(true); }}>다음 차례 계속하기</button>
+                                <p style={{margin:'15px 0', fontSize:'20px', fontWeight:'bold'}}>{popup.text}</p>
+                                <button className="popup-btn" onClick={nextTurn}>다음 차례</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {gameOver && (
+                        <div className="popup-overlay">
+                            <div className="popup-content">
+                                <div style={{fontSize:'80px'}}>🎊</div>
+                                <h1>대회 종료!</h1>
+                                <h2 style={{margin:'20px 0'}}>
+                                    {redTotal > blueTotal ? <span className="team-red">RED 팀 승리!</span> : redTotal < blueTotal ? <span className="team-blue">BLUE 팀 승리!</span> : "무승부!"}
+                                </h2>
+                                <p style={{fontSize:'24px'}}>RED {redTotal} : {blueTotal} BLUE</p>
+                                <button className="popup-btn" onClick={onHome}>처음으로 돌아가기</button>
                             </div>
                         </div>
                     )}
