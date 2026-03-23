@@ -794,12 +794,12 @@
             const START_LINE_HEIGHT = 80;
 
             const HOLES = [
-                { x: 200, y: 70, index: 0 },    // 행1 열1
-                { x: 800, y: 70, index: 1 },    // 행1 열2
-                { x: 200, y: 170, index: 2 },   // 행2 열1
-                { x: 800, y: 170, index: 3 },   // 행2 열2
-                { x: 200, y: 270, index: 4 },   // 행3 열1
-                { x: 800, y: 270, index: 5 }    // 행3 열2
+                { x: 200, y: 170, index: 0 },   // 행1 열1
+                { x: 800, y: 170, index: 1 },   // 행1 열2
+                { x: 200, y: 270, index: 2 },   // 행2 열1
+                { x: 800, y: 270, index: 3 },   // 행2 열2
+                { x: 200, y: 370, index: 4 },   // 행3 열1
+                { x: 800, y: 370, index: 5 }    // 행3 열2
             ];
 
             // 캔버스 그리기
@@ -815,10 +815,11 @@
 
                 // 스톤의 정확한 중앙 X 좌표 계산
                 const centerX = width * 0.5;
+                const centerY = height - 80;  // START 라인 위치
                 
                 // 스톤 위치가 중앙이 아니면 업데이트
-                if (Math.abs(stonePos.x - centerX) > 10) {
-                    setStonePos(prev => ({ ...prev, x: centerX }));
+                if (Math.abs(stonePos.x - centerX) > 10 || Math.abs(stonePos.y - centerY) > 10) {
+                    setStonePos(prev => ({ x: centerX, y: centerY }));
                 }
 
                 // 동적 과녁 좌표 계산
@@ -826,12 +827,12 @@
                 const rightX = width * 0.75;
                 
                 const dynamicHoles = [
-                    { x: leftX, y: 70, index: 0 },   // 1
-                    { x: rightX, y: 70, index: 1 },   // 2
-                    { x: leftX, y: 170, index: 2 },    // 3
-                    { x: rightX, y: 170, index: 3 },   // 4
-                    { x: leftX, y: 270, index: 4 },    // 5
-                    { x: rightX, y: 270, index: 5 }    // 6
+                    { x: leftX, y: 170, index: 0 },   // 1
+                    { x: rightX, y: 170, index: 1 },   // 2
+                    { x: leftX, y: 270, index: 2 },    // 3
+                    { x: rightX, y: 270, index: 3 },   // 4
+                    { x: leftX, y: 370, index: 4 },    // 5
+                    { x: rightX, y: 370, index: 5 }    // 6
                 ];
                 
                 // HOLES를 동적으로 계산된 값으로 업데이트
@@ -925,15 +926,18 @@
                     }
                 });
 
+                // START 라인을 canvas 하단에 맞춤
+                const START_LINE_Y_DYNAMIC = height - 80;
+                
                 // START 라인
                 ctx.fillStyle = 'rgba(200, 100, 100, 0.15)';
-                ctx.fillRect(50, START_LINE_Y - START_LINE_HEIGHT / 2, width - 100, START_LINE_HEIGHT);
+                ctx.fillRect(50, START_LINE_Y_DYNAMIC - START_LINE_HEIGHT / 2, width - 100, START_LINE_HEIGHT);
                 ctx.strokeStyle = '#ff6b6b';
                 ctx.lineWidth = 3;
                 ctx.setLineDash([5, 5]);
                 ctx.beginPath();
-                ctx.moveTo(50, START_LINE_Y);
-                ctx.lineTo(width - 50, START_LINE_Y);
+                ctx.moveTo(50, START_LINE_Y_DYNAMIC);
+                ctx.lineTo(width - 50, START_LINE_Y_DYNAMIC);
                 ctx.stroke();
                 ctx.setLineDash([]);
 
@@ -941,7 +945,7 @@
                 ctx.fillStyle = '#ff6b6b';
                 ctx.font = 'bold 14px Arial';
                 ctx.textAlign = 'left';
-                ctx.fillText('START', 70, START_LINE_Y - 20);
+                ctx.fillText('START', 70, START_LINE_Y_DYNAMIC - 20);
 
                 // 컬링 스톤
                 const stoneGradient = ctx.createRadialGradient(stonePos.x - 8, stonePos.y - 8, 5, stonePos.x, stonePos.y, STONE_RADIUS);
@@ -1026,11 +1030,17 @@
                 const handleMove = (e) => {
                     if (isDragging) {
                         const coords = getCoords(e);
+                        const canvas = canvasRef.current;
+                        if (!canvas) return;
+                        
+                        // START 라인 동적 계산
+                        const startLineY = canvas.height - 80;
+                        
                         // START 라인 범위 내에서만 이동 가능
                         const dragMinX = 100;  // 좌측 범위
-                        const dragMaxX = 800;  // 우측 범위
-                        const dragMinY = 660;  // 상단 범위
-                        const dragMaxY = 740;  // 하단 범위
+                        const dragMaxX = canvas.width - 100;  // 우측 범위
+                        const dragMinY = startLineY - 40;  // 상단 범위
+                        const dragMaxY = startLineY + 40;  // 하단 범위
                         
                         const boundedX = Math.max(dragMinX, Math.min(dragMaxX, coords.x));
                         const boundedY = Math.max(dragMinY, Math.min(dragMaxY, coords.y));
@@ -1048,7 +1058,7 @@
 
                         if (power > 10) {
                             const angle = Math.atan2(dy, dx);
-                            const velocity = Math.min(power * 0.5, 20);
+                            const velocity = Math.min(power * 1.0, 25);  // 민감성 증가
                             setStoneVel({
                                 x: Math.cos(angle) * velocity,
                                 y: Math.sin(angle) * velocity
@@ -1152,10 +1162,12 @@
                                     setShowPopup(true);
                                     setPopupData(layers[closestHole.index]);
                                     setIsMoving(false);
-                                    // 스톤 위치는 그대로 유지! 변경하지 않음
+                                    // 스톤 위치는 그대로 유지!
                                 } else if (isMoving) {
                                     setIsMoving(false);
-                                    // 과녁에 닿지 않으면 그냥 멈춤
+                                    // 과녁에 닿지 않으면 원위치 복귀
+                                    newX = width * 0.5;  // 정확한 중앙
+                                    newY = height - 80;  // START 라인 위치
                                 }
                             }
 
@@ -1212,7 +1224,10 @@
                                 <p className="popup-text">{popupData.text}</p>
                                 <button className="popup-btn" onClick={() => {
                                     setShowPopup(false);
-                                    setStonePos(initialStonePos);
+                                    const canvas = canvasRef.current;
+                                    if (canvas) {
+                                        setStonePos({ x: canvas.width * 0.5, y: canvas.height - 80 });
+                                    }
                                     setStoneVel({ x: 0, y: 0 });
                                 }}>
                                     🎮 계속하기
