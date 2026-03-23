@@ -301,16 +301,18 @@
         }
 
         .game-top-bar {
-            background: rgba(0, 0, 0, 0.15);
-            padding: 12px 20px;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+            display: none;
         }
 
-        .game-title-top {
-            display: none;
+        .side-buttons {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
         }
 
         .top-buttons {
@@ -319,13 +321,14 @@
         }
 
         .btn-small {
-            padding: 8px 16px;
+            padding: 12px 18px;
             border: none;
-            border-radius: 8px;
-            font-weight: 700;
+            border-radius: 10px;
+            font-weight: 800;
             cursor: pointer;
-            transition: all 0.2s;
-            font-size: 12px;
+            transition: all 0.3s;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .btn-restart {
@@ -793,17 +796,17 @@
             const [isMoving, setIsMoving] = useState(false);
 
             const STONE_RADIUS = 25;
-            const HOLE_RADIUS = 25;
+            const HOLE_RADIUS = 50;
             const START_LINE_Y = 750;
             const START_LINE_HEIGHT = 80;
 
             const HOLES = [
-                { x: 200, y: 100, index: 0 },
-                { x: 700, y: 100, index: 1 },
-                { x: 200, y: 270, index: 2 },
-                { x: 700, y: 270, index: 3 },
-                { x: 200, y: 440, index: 4 },
-                { x: 700, y: 440, index: 5 }
+                { x: 250, y: 100, index: 0 },   // 행1 열1
+                { x: 650, y: 100, index: 1 },   // 행1 열2
+                { x: 250, y: 290, index: 2 },   // 행2 열1
+                { x: 650, y: 290, index: 3 },   // 행2 열2
+                { x: 250, y: 480, index: 4 },   // 행3 열1
+                { x: 650, y: 480, index: 5 }    // 행3 열2
             ];
 
             // 캔버스 그리기
@@ -1144,6 +1147,16 @@
                             }}>↺ 다시</button>
                             <button className="btn-small btn-setup" onClick={onReset}>⚙️ 설정</button>
                         </div>
+                    </div>
+
+                    <div className="side-buttons">
+                        <button className="btn-small btn-restart" onClick={() => {
+                            setStonePos(initialStonePos);
+                            setStoneVel({ x: 0, y: 0 });
+                            setIsMoving(false);
+                            SoundManager.playDrag();
+                        }}>↺ 다시</button>
+                        <button className="btn-small btn-setup" onClick={onReset}>⚙️ 설정</button>
                     </div>
 
                     <div className="canvas-section">
